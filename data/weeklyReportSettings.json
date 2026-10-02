@@ -1,0 +1,45 @@
+{
+  "1553072132978905178": {
+    "settings": {
+      "enabled": false,
+      "channelId": "1553072214839001158",
+      "dayOfWeek": 1,
+      "time": "18:00",
+      "timezone": "Europe/Berlin",
+      "pingRole": "",
+      "content": "",
+      "topLimit": 3,
+      "embed": {
+        "color": "#8b5cf6",
+        "title": "📊 Еженедельный отчёт — {server}",
+        "description": "Итоги недели: {from} — {to}",
+        "footer": "",
+        "imageUrl": "",
+        "thumbnail": true,
+        "timestamp": true
+      },
+      "sections": {
+        "members": true,
+        "applications": true,
+        "warnings": true,
+        "activity": true,
+        "activeChannel": true,
+        "comparison": true,
+        "topMessages": true,
+        "topVoice": true,
+        "allTimeMessages": true,
+        "allTimeVoice": true
+      }
+    },
+    "state": {
+      "enabledSince": 0,
+      "lastHandledSlot": 0,
+      "lastSentAt": 0,
+      "lastSkippedAt": 0,
+      "lastSkipText": "",
+      "lastError": "",
+      "allTimeBackfilled": true,
+      "lastManualAt": 1790597140083
+    }
+  }
+}

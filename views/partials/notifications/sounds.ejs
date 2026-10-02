@@ -1,0 +1,754 @@
+<style>
+    .sound-card {
+        background: #181920;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .sound-card .form-control, .sound-card .form-select {
+        background: #121318 !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        color: #fff !important;
+    }
+    .sound-card .form-control:focus, .sound-card .form-select:focus {
+        border-color: var(--accent-color) !important;
+        box-shadow: 0 0 0 0.2rem rgba(255,255,255,0.1) !important;
+    }
+    .sound-item {
+        background: #1e1f22;
+        border: 1px solid #3f4147;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+    .sound-name {
+        color: #fff;
+        font-weight: 600;
+        flex: 1;
+    }
+    .sound-size {
+        color: #949ba4;
+        font-size: 0.85rem;
+    }
+    .sound-delete {
+        background: #da373c;
+        border: none;
+        color: #fff;
+        border-radius: 6px;
+        padding: 6px 12px;
+        cursor: pointer;
+        font-size: 0.85rem;
+    }
+    .sound-delete:hover { background: #a1282c; }
+    .channel-members {
+        background: #1e1f22;
+        border: 1px solid #3f4147;
+        border-radius: 8px;
+        padding: 12px;
+        margin-top: 12px;
+    }
+    .member-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px;
+        border-radius: 6px;
+        background: #2b2d31;
+        margin-bottom: 6px;
+    }
+    .member-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    .member-info {
+        flex: 1;
+    }
+    .member-name {
+        color: #fff;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    .member-bot {
+        color: #5865F2;
+        font-size: 0.75rem;
+    }
+    .refresh-btn {
+        background: #5865F2;
+        border: none;
+        color: #fff;
+        border-radius: 6px;
+        padding: 6px 12px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: background 0.2s;
+    }
+    .refresh-btn:hover { background: #4752c4; }
+    .refresh-btn:disabled { background: #4e5058; cursor: not-allowed; }
+    .record-btn {
+        background: #ed4245;
+        border: none;
+        color: #fff;
+        border-radius: 6px;
+        padding: 6px 12px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: background 0.2s;
+    }
+    .record-btn:hover { background: #c43437; }
+    .record-btn.recording {
+        background: #57f287;
+        animation: pulse 1.5s infinite;
+    }
+    .record-btn.recording:hover { background: #45c46b; }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+    .recording-status {
+        background: #1e1f22;
+        border: 1px solid #3f4147;
+        border-radius: 8px;
+        padding: 12px;
+        margin-top: 12px;
+    }
+    .recording-item {
+        background: #2b2d31;
+        border: 1px solid #3f4147;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+    .recording-info {
+        flex: 1;
+    }
+    .recording-name {
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    .recording-meta {
+        color: #949ba4;
+        font-size: 0.8rem;
+        margin-top: 4px;
+    }
+    .recording-actions {
+        display: flex;
+        gap: 8px;
+    }
+    .recording-actions button {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+    .audio-player {
+        width: 100%;
+        margin-top: 8px;
+    }
+    .convert-btn {
+        background: #5865F2;
+        border: none;
+        color: #fff;
+        border-radius: 6px;
+        padding: 6px 12px;
+        cursor: pointer;
+        font-size: 0.8rem;
+    }
+    .convert-btn:hover { background: #4752c4; }
+    .download-btn {
+        background: #3ba55c;
+        border: none;
+        color: #fff;
+        border-radius: 6px;
+        padding: 6px 12px;
+        cursor: pointer;
+        font-size: 0.8rem;
+    }
+    .download-btn:hover { background: #2d7d46; }
+    .spin {
+        animation: spin 1s linear infinite;
+        display: inline-block;
+    }
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="mb-4">
+        <h3 class="fw-bold text-white mb-1"><i class="bi bi-volume-up text-accent me-2"></i>Звуковые оповещения</h3>
+        <p class="text-muted small mb-0">Загружайте звуки и воспроизводите их в голосовых каналах</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="sound-card">
+                <h5 class="text-white mb-3">📤 Загрузить новый звук</h5>
+                
+                <div class="mb-3">
+                    <label class="form-label text-muted small">Выберите файл</label>
+                    <input type="file" id="soundFile" accept=".mp3,.wav,.ogg,.flac,.m4a" class="form-control">
+                </div>
+                
+                <div class="text-muted small mb-3">
+                    Поддерживаемые форматы: MP3, WAV, OGG, FLAC, M4A (макс. 10MB)
+                </div>
+                
+                <button type="button" class="btn btn-accent text-white w-100" onclick="uploadSound()">
+                    <i class="bi bi-upload me-1"></i>Загрузить
+                </button>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="sound-card">
+                <h5 class="text-white mb-3">🎵 Загруженные звуки</h5>
+                <div id="soundsList">
+                    <div class="text-center text-muted py-3">Загрузка звуков...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="sound-card">
+                <h5 class="text-white mb-3">▶️ Воспроизвести звук</h5>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">Выберите звук</label>
+                        <select id="soundSelect" class="form-select">
+                            <option value="">Выберите звук...</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small">Выберите голосовой канал</label>
+                        <div class="d-flex gap-2">
+                            <select id="channelSelect" class="form-select flex-grow-1">
+                                <option value="">Выберите голосовой канал...</option>
+                            </select>
+                            <button type="button" class="refresh-btn" onclick="refreshChannelMembers()" id="refreshBtn">
+                                <i class="bi bi-arrow-clockwise"></i>
+                            </button>
+                        </div>
+                        <div id="channelMembers" class="channel-members" style="display: none;">
+                            <div class="text-muted small mb-2">Участники в канале:</div>
+                            <div id="membersList"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 mb-3">
+                    <button type="button" class="btn btn-success flex-grow-1" onclick="playSound()">
+                        <i class="bi bi-play-fill me-1"></i>Воспроизвести
+                    </button>
+                    <button type="button" class="btn btn-danger flex-grow-1" onclick="stopSound()">
+                        <i class="bi bi-stop-fill me-1"></i>Остановить
+                    </button>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="button" class="record-btn flex-grow-1" onclick="startRecording()" id="recordBtn">
+                        <i class="bi bi-circle-fill me-1"></i>Начать запись
+                    </button>
+                    <button type="button" class="record-btn flex-grow-1" onclick="stopRecording()" id="stopRecordBtn" style="display: none;">
+                        <i class="bi bi-stop-fill me-1"></i>Остановить запись
+                    </button>
+                </div>
+
+                <div id="recordingStatus" class="recording-status" style="display: none;">
+                    <div class="text-white small">
+                        <i class="bi bi-record-circle text-danger me-1"></i>
+                        Запись идет: <span id="recordingDuration">0</span> сек
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="sound-card">
+                <h5 class="text-white mb-3">🎙️ Записи голосовых каналов</h5>
+                <div id="recordingsList">
+                    <div class="text-center text-muted py-3">Загрузка записей...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let sounds = [];
+let channels = [];
+let recordings = [];
+let recordingInterval = null;
+
+// Загрузить список звуков
+async function loadSounds() {
+    try {
+        const response = await fetch('/api/sounds');
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Ошибка сервера:', errorData);
+            document.getElementById('soundsList').innerHTML = '<div class="text-center text-muted py-3">Ошибка загрузки: ' + (errorData.error || 'Неизвестная ошибка') + '</div>';
+            sounds = [];
+            return;
+        }
+        
+        sounds = await response.json();
+        
+        // Проверяем что sounds это массив
+        if (!Array.isArray(sounds)) {
+            console.error('Ожидался массив, получено:', typeof sounds, sounds);
+            sounds = [];
+        }
+        
+        renderSounds();
+        updateSoundSelect();
+    } catch (err) {
+        console.error('Ошибка загрузки звуков:', err);
+        document.getElementById('soundsList').innerHTML = '<div class="text-center text-muted py-3">Ошибка загрузки: ' + err.message + '</div>';
+        sounds = [];
+    }
+}
+
+// Загрузить список голосовых каналов
+async function loadChannels() {
+    try {
+        const response = await fetch('/api/sounds/channels');
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Ошибка сервера каналов:', errorData);
+            channels = [];
+            return;
+        }
+        
+        channels = await response.json();
+        
+        // Проверяем что channels это массив
+        if (!Array.isArray(channels)) {
+            console.error('Ожидался массив каналов, получено:', typeof channels, channels);
+            channels = [];
+        }
+        
+        updateChannelSelect();
+    } catch (err) {
+        console.error('Ошибка загрузки каналов:', err);
+        channels = [];
+    }
+}
+
+// Отобразить список звуков
+function renderSounds() {
+    const container = document.getElementById('soundsList');
+    container.innerHTML = sounds.length === 0 
+        ? '<div class="text-center text-muted py-3">Нет загруженных звуков</div>'
+        : sounds.map(sound => `
+            <div class="sound-item">
+                <div class="flex-grow-1">
+                    <div class="sound-name">${sound.name}</div>
+                    <div class="sound-size">${(sound.size / 1024).toFixed(2)} KB</div>
+                </div>
+                <button class="sound-delete" onclick="deleteSound('${sound.name}')">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        `).join('');
+}
+
+// Обновить select звуков
+function updateSoundSelect() {
+    const select = document.getElementById('soundSelect');
+    select.innerHTML = '<option value="">Выберите звук...</option>' +
+        sounds.map(sound => `<option value="${sound.name}">${sound.name}</option>`).join('');
+}
+
+// Обновить select каналов
+function updateChannelSelect() {
+    const select = document.getElementById('channelSelect');
+    select.innerHTML = '<option value="">Выберите голосовой канал...</option>' +
+        channels.map(ch => `<option value="${ch.id}">${ch.name} (${ch.membersCount} чел.)</option>`).join('');
+
+    // Добавляем обработчик изменения
+    select.onchange = function() {
+        const channelId = this.value;
+        const membersContainer = document.getElementById('channelMembers');
+        if (channelId) {
+            membersContainer.style.display = 'block';
+            refreshChannelMembers();
+        } else {
+            membersContainer.style.display = 'none';
+        }
+    };
+}
+
+// Загрузить список записей
+async function loadRecordings() {
+    try {
+        const response = await fetch('/api/recorder/list');
+
+        if (!response.ok) {
+            console.error('Ошибка загрузки записей');
+            recordings = [];
+            return;
+        }
+
+        const dirs = await response.json();
+        // Преобразуем структуру dirs в плоский список файлов
+        recordings = [];
+        dirs.forEach(dir => {
+            dir.files.forEach(file => {
+                recordings.push({
+                    name: file,
+                    dir: dir.name,
+                    created: new Date(dir.name.replace(/-/g, ':'))
+                });
+            });
+        });
+        renderRecordings();
+    } catch (err) {
+        console.error('Ошибка загрузки записей:', err);
+        recordings = [];
+    }
+}
+
+// Отобразить список записей
+function renderRecordings() {
+    const container = document.getElementById('recordingsList');
+    container.innerHTML = recordings.length === 0
+        ? '<div class="text-center text-muted py-3">Нет записей</div>'
+        : recordings.map(rec => {
+            const isMp3 = rec.name.endsWith('.mp3');
+            const isMix = rec.name === 'mix.mp3';
+            const downloadUrl = `/api/recorder/download/${encodeURIComponent(rec.dir)}/${encodeURIComponent(rec.name)}`;
+
+            return `
+            <div class="recording-item">
+                <div class="recording-info">
+                    <div class="recording-name">${rec.name} ${isMix ? '<span class="badge bg-success">Микс</span>' : ''}</div>
+                    <div class="recording-meta">
+                        ${rec.dir} • ${rec.created ? rec.created.toLocaleString('ru-RU') : ''}
+                    </div>
+                    ${isMp3 ? `<audio controls class="audio-player" src="${downloadUrl}"></audio>` : ''}
+                </div>
+                <div class="recording-actions">
+                    <button class="download-btn" onclick="downloadRecording('${rec.dir}', '${rec.name}')"><i class="bi bi-download"></i></button>
+                    <button class="sound-delete" onclick="deleteRecording('${rec.dir}', '${rec.name}')"><i class="bi bi-trash"></i></button>
+                </div>
+            </div>
+        `}).join('');
+}
+
+// Проверить статус записи
+async function checkRecordingStatus() {
+    try {
+        const response = await fetch('/api/recorder/status');
+        const status = await response.json();
+
+        const recordBtn = document.getElementById('recordBtn');
+        const stopRecordBtn = document.getElementById('stopRecordBtn');
+        const recordingStatus = document.getElementById('recordingStatus');
+
+        if (status.recording) {
+            recordBtn.style.display = 'none';
+            stopRecordBtn.style.display = 'block';
+            recordingStatus.style.display = 'block';
+
+            // Обновляем таймер
+            if (recordingInterval) clearInterval(recordingInterval);
+            recordingInterval = setInterval(() => {
+                const duration = Math.round((Date.now() - status.startTime) / 1000);
+                document.getElementById('recordingDuration').textContent = duration;
+            }, 1000);
+        } else {
+            recordBtn.style.display = 'block';
+            stopRecordBtn.style.display = 'none';
+            recordingStatus.style.display = 'none';
+
+            if (recordingInterval) {
+                clearInterval(recordingInterval);
+                recordingInterval = null;
+            }
+        }
+    } catch (err) {
+        console.error('Ошибка проверки статуса записи:', err);
+    }
+}
+
+// Начать запись
+async function startRecording() {
+    const channelId = document.getElementById('channelSelect').value;
+
+    if (!channelId) {
+        alert('Выберите голосовой канал для записи');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/recorder/start', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ channelId })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('Запись начата!');
+            checkRecordingStatus();
+        } else {
+            alert('Ошибка: ' + result.error);
+        }
+    } catch (err) {
+        console.error('Ошибка начала записи:', err);
+        alert('Ошибка начала записи: ' + err.message);
+    }
+}
+
+// Остановить запись
+async function stopRecording() {
+    try {
+        const response = await fetch('/api/recorder/stop', {
+            method: 'POST'
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert(`Запись остановлена! Сохранено в: ${result.dir}`);
+            checkRecordingStatus();
+            loadRecordings(); // Обновить список записей
+        } else {
+            alert('Ошибка: ' + result.error);
+        }
+    } catch (err) {
+        console.error('Ошибка остановки записи:', err);
+        alert('Ошибка остановки записи: ' + err.message);
+    }
+}
+
+// Скачать запись
+function downloadRecording(dir, filename) {
+    window.open(`/api/recorder/download/${encodeURIComponent(dir)}/${encodeURIComponent(filename)}`, '_blank');
+}
+
+// Удалить запись
+async function deleteRecording(dir, file) {
+    if (!confirm(`Удалить файл "${file}"?`)) return;
+
+    try {
+        const response = await fetch(`/api/recorder/${encodeURIComponent(dir)}/${encodeURIComponent(file)}`, {
+            method: 'DELETE'
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('Файл удалён!');
+            loadRecordings();
+        } else {
+            alert('Ошибка: ' + result.error);
+        }
+    } catch (err) {
+        console.error('Ошибка удаления записи:', err);
+        alert('Ошибка удаления записи');
+    }
+}
+
+// Загрузить звук
+async function uploadSound() {
+    const fileInput = document.getElementById('soundFile');
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert('Выберите файл');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('sound', file);
+
+    try {
+        const response = await fetch('/api/sounds/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Server error:', errorText);
+            alert('Ошибка сервера: ' + response.status);
+            return;
+        }
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('Звук загружен!');
+            fileInput.value = '';
+            loadSounds();
+        } else {
+            alert('Ошибка: ' + result.error);
+        }
+    } catch (err) {
+        console.error('Ошибка загрузки:', err);
+        alert('Ошибка загрузки звука: ' + err.message);
+    }
+}
+
+// Удалить звук
+async function deleteSound(filename) {
+    if (!confirm(`Удалить звук "${filename}"?`)) return;
+
+    try {
+        const response = await fetch(`/api/sounds/${encodeURIComponent(filename)}`, {
+            method: 'DELETE'
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('Звук удалён!');
+            loadSounds();
+        } else {
+            alert('Ошибка: ' + result.error);
+        }
+    } catch (err) {
+        console.error('Ошибка удаления:', err);
+        alert('Ошибка удаления звука');
+    }
+}
+
+// Воспроизвести звук
+async function playSound() {
+    const soundFilename = document.getElementById('soundSelect').value;
+    const channelId = document.getElementById('channelSelect').value;
+
+    console.log('playSound called with:', { soundFilename, channelId });
+
+    if (!soundFilename || !channelId) {
+        alert('Выберите звук и канал');
+        return;
+    }
+
+    try {
+        console.log('Sending request to /api/sounds/play...');
+        const response = await fetch('/api/sounds/play', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ soundFilename, channelId })
+        });
+
+        console.log('Response status:', response.status);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Server error:', errorText);
+            alert('Ошибка сервера: ' + response.status + ' - ' + errorText);
+            return;
+        }
+
+        const result = await response.json();
+        console.log('Response data:', result);
+
+        if (result.success) {
+            alert('Звук воспроизводится!');
+        } else {
+            alert('Ошибка: ' + result.error);
+        }
+    } catch (err) {
+        console.error('Ошибка воспроизведения:', err);
+        alert('Ошибка воспроизведения звука: ' + err.message);
+    }
+}
+
+// Остановить воспроизведение
+async function stopSound() {
+    const channelId = document.getElementById('channelSelect').value;
+
+    if (!channelId) {
+        alert('Выберите канал');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/sounds/stop', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ channelId })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('Воспроизведение остановлено!');
+        } else {
+            alert('Ошибка: ' + result.error);
+        }
+    } catch (err) {
+        console.error('Ошибка остановки:', err);
+        alert('Ошибка остановки воспроизведения');
+    }
+}
+
+// Обновить список участников в выбранном канале
+async function refreshChannelMembers() {
+    const channelId = document.getElementById('channelSelect').value;
+    const refreshBtn = document.getElementById('refreshBtn');
+    const membersContainer = document.getElementById('channelMembers');
+    const membersList = document.getElementById('membersList');
+
+    if (!channelId) {
+        alert('Сначала выберите голосовой канал');
+        return;
+    }
+
+    refreshBtn.disabled = true;
+    membersContainer.style.display = 'block';
+    membersList.innerHTML = '<div class="text-muted small">Загрузка...</div>';
+
+    try {
+        const response = await fetch(`/api/sounds/channels/${channelId}/members`);
+        const result = await response.json();
+
+        if (result.success) {
+            if (result.members.length === 0) {
+                membersList.innerHTML = '<div class="text-muted small">В канале нет участников</div>';
+            } else {
+                membersList.innerHTML = result.members.map(member => `
+                    <div class="member-item">
+                        <img src="${member.avatar}" alt="${member.username}" class="member-avatar">
+                        <div class="member-info">
+                            <div class="member-name">${member.displayName || member.username}</div>
+                            ${member.isBot ? '<span class="member-bot">BOT</span>' : ''}
+                        </div>
+                    </div>
+                `).join('');
+            }
+        } else {
+            membersList.innerHTML = '<div class="text-danger small">Ошибка: ' + (result.error || 'Неизвестная ошибка') + '</div>';
+        }
+    } catch (err) {
+        console.error('Ошибка загрузки участников:', err);
+        membersList.innerHTML = '<div class="text-danger small">Ошибка загрузки: ' + err.message + '</div>';
+    } finally {
+        refreshBtn.disabled = false;
+    }
+}
+
+// Загрузить данные при открытии
+loadSounds();
+loadChannels();
+loadRecordings();
+checkRecordingStatus();
+</script>

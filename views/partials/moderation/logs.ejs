@@ -1,0 +1,61 @@
+<style>
+    .log-row {
+        background: #181920;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 10px;
+        padding: 14px 18px;
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+    }
+    .log-icon {
+        width: 36px; height: 36px; border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.1rem; flex-shrink: 0;
+    }
+    /* Упоминания (@ник, @роль, #канал) в стиле Discord.
+       !important нужен, потому что в style.css все <span> принудительно белые. */
+    .log-mention {
+        background: rgba(88, 101, 242, 0.3);
+        color: #c9cdfb !important;
+        border-radius: 4px;
+        padding: 0 4px;
+        font-weight: 500;
+    }
+    .log-row a { color: #8ab4ff; }
+</style>
+
+<div class="container-fluid py-4" id="moderationLogsPage" data-guild-id="<%= guildId %>">
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <div>
+            <h3 class="fw-bold text-white mb-1"><i class="bi bi-journal-text text-accent me-2"></i>Журнал событий</h3>
+            <p class="text-muted small mb-0">Все действия модерации и системные события бота, даже если канал логов в Discord не настроен</p>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <select class="form-select" id="logTypeFilterSelect" style="background:#181920; color:#fff; border:1px solid rgba(255,255,255,0.1); width:220px;">
+                <option value="">Все события</option>
+                <option value="warn">⚠️ Предупреждения</option>
+                <option value="member_join">📥 Вход участников</option>
+                <option value="member_leave">📤 Выход участников</option>
+                <option value="sostav_call">🚨 Созыв состава</option>
+                <option value="form_decision">📝 Решения по заявкам</option>
+                <option value="automod">🤖 Автомодерация</option>
+                <option value="message_edit">✏️ Правки сообщений</option>
+                <option value="message_delete">🗑️ Удаления сообщений</option>
+                <option value="weekly_report">📊 Еженедельный отчёт</option>
+                <option value="poll">🗳️ Опросы</option>
+                <option value="other">ℹ️ Прочее</option>
+            </select>
+            <input type="text" class="form-control" id="logsSearchInput" placeholder="Поиск по тексту лога..." style="background:#181920; color:#fff; border:1px solid rgba(255,255,255,0.1); width:260px;">
+            <button class="btn btn-outline-light" id="logsExportBtn"><i class="bi bi-download me-1"></i>CSV</button>
+        </div>
+    </div>
+
+    <div id="moderationLogsList" class="d-flex flex-column gap-2"></div>
+
+    <p class="text-muted text-center py-5 mb-0" id="moderationLogsEmpty" style="display:none;">
+        Пока нет ни одного события. Как только бот что-то залогирует — оно появится здесь.
+    </p>
+</div>
+
+<script src="/js/moderationLogs.js"></script>

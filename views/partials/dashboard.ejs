@@ -1,0 +1,63 @@
+<div class="container-fluid py-4" id="ownerSettingsContainer">
+    <div class="mb-4">
+        <h3 class="fw-bold text-white mb-1">
+            <i class="bi bi-gear-fill text-accent me-2"></i> Настройки
+        </h3>
+        <p class="text-muted small mb-0">Эта страница видна только вам как владельцу панели</p>
+    </div>
+
+    <div class="row g-4">
+        <!-- ===================== СТИЛЬ САЙТА ===================== -->
+        <div class="col-lg-6">
+            <div class="glass-card p-4" style="background: #181920; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px;">
+                <h5 class="fw-bold text-white mb-3"><i class="bi bi-palette-fill me-2"></i>Стиль сайта</h5>
+
+                <div class="mb-3">
+                    <label class="form-label text-muted small">Название панели</label>
+                    <input type="text" class="form-control" id="siteNameInput" style="background: #121318; border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-6">
+                        <label class="form-label text-muted small">Основной акцентный цвет</label>
+                        <input type="color" class="form-control form-control-color w-100" id="accentColorInput" style="height: 42px; background: #121318; border: 1px solid rgba(255,255,255,0.1);">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label text-muted small">Дополнительный цвет (кнопки Discord-стиля)</label>
+                        <input type="color" class="form-control form-control-color w-100" id="accentColorSecondaryInput" style="height: 42px; background: #121318; border: 1px solid rgba(255,255,255,0.1);">
+                    </div>
+                </div>
+
+                <div class="alert alert-warning small mb-3" style="background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.2); color: #fde68a;">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Меняет цвет навигации, переключателей и части кнопок сайта. Некоторые элементы (например, внутри конструктора эмбедов) используют зашитый цвет напрямую и не подхватывают эту настройку.
+                </div>
+
+                <button type="button" class="btn text-white fw-semibold px-4" id="saveStyleBtn" style="background: var(--accent-color); border: none;">
+                    <i class="bi bi-save-fill me-1"></i> Сохранить стиль
+                </button>
+            </div>
+        </div>
+
+        <!-- ===================== ДОСТУП К ПАНЕЛИ ===================== -->
+        <div class="col-lg-6">
+            <div class="glass-card p-4" style="background: #181920; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px;">
+                <h5 class="fw-bold text-white mb-1"><i class="bi bi-shield-lock-fill me-2"></i>Доступ через Discord</h5>
+                <p class="text-muted small mb-3">Только пользователи из этого списка смогут войти на панель через кнопку «Войти через Discord». Остальных перекинет на заглушку.</p>
+
+                <div class="d-flex gap-2 mb-3">
+                    <input type="text" class="form-control font-monospace" id="newDiscordIdInput" placeholder="Discord ID (только цифры)" style="background: #121318; border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+                    <button type="button" class="btn text-white fw-semibold px-3 flex-shrink-0" id="addDiscordIdBtn" style="background: var(--accent-color); border: none;">
+                        <i class="bi bi-plus-lg me-1"></i> Добавить
+                    </button>
+                </div>
+
+                <div id="allowedIdsList" class="d-flex flex-column gap-2">
+                    <span class="text-muted small">Загрузка списка...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/ownerSettings.js"></script>

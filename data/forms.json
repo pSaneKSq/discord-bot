@@ -1,0 +1,182 @@
+{
+  "1553072132978905178": {
+    "1553072132978905178": {
+      "1553072132978905178": {
+        "1553072132978905178": {
+          "1553072132978905178": {
+            "1553072132978905178": {
+              "1790506901034": {
+                "id": "1790506901034",
+                "channelId": "1553361015121518717",
+                "messageId": "1554066228383842358",
+                "embedTitle": "Новая форма",
+                "embedDesc": "Текст сообщения...",
+                "embedColor": "#8b5cf6",
+                "embedAuthor": "",
+                "buttonText": "Подать заявку",
+                "imageUrl": "",
+                "questions": [
+                  {
+                    "id": "q_1790507014515_964",
+                    "label": "123",
+                    "placeholder": "",
+                    "minLength": 0,
+                    "maxLength": 500,
+                    "required": false
+                  },
+                  {
+                    "id": "q_1790588650863_809",
+                    "label": "13134",
+                    "placeholder": "",
+                    "minLength": 0,
+                    "maxLength": 500,
+                    "required": false
+                  }
+                ],
+                "settings": {
+                  "reviewChannelId": "1553072214839001158",
+                  "logChannelId": "1553093930365493298",
+                  "cooldownMinutes": 5,
+                  "interviewRoleId": ""
+                },
+                "actions": {
+                  "accept": {
+                    "dm": "",
+                    "addRoles": [],
+                    "removeRoles": []
+                  },
+                  "reject": {
+                    "dm": "",
+                    "addRoles": [],
+                    "removeRoles": []
+                  }
+                }
+              },
+              "1553072132978905178": {}
+            },
+            "1790851418450": {
+              "id": "1790851418450",
+              "channelId": "",
+              "messageId": "",
+              "embedTitle": "Новая форма",
+              "embedDesc": "Текст сообщения...",
+              "embedColor": "#8b5cf6",
+              "embedAuthor": "",
+              "buttonText": "Подать заявку",
+              "imageUrl": "",
+              "questions": [],
+              "settings": {
+                "reviewChannelId": "",
+                "logChannelId": "",
+                "cooldownMinutes": 5,
+                "interviewRoleId": ""
+              },
+              "actions": {
+                "accept": {
+                  "dm": "",
+                  "addRoles": [],
+                  "removeRoles": []
+                },
+                "reject": {
+                  "dm": "",
+                  "addRoles": [],
+                  "removeRoles": []
+                }
+              }
+            }
+          }
+        },
+        "1790851662328": {
+          "id": "1790851662328",
+          "channelId": "",
+          "messageId": "",
+          "embedTitle": "Новая форма",
+          "embedDesc": "Текст сообщения...",
+          "embedColor": "#8b5cf6",
+          "embedAuthor": "",
+          "buttonText": "Подать заявку",
+          "imageUrl": "",
+          "questions": [],
+          "settings": {
+            "reviewChannelId": "",
+            "logChannelId": "",
+            "cooldownMinutes": 5,
+            "interviewRoleId": ""
+          },
+          "actions": {
+            "accept": {
+              "dm": "",
+              "addRoles": [],
+              "removeRoles": []
+            },
+            "reject": {
+              "dm": "",
+              "addRoles": [],
+              "removeRoles": []
+            }
+          }
+        }
+      }
+    },
+    "1790853167357": {
+      "id": "1790853167357",
+      "channelId": "",
+      "messageId": "",
+      "embedTitle": "Новая форма",
+      "embedDesc": "Текст сообщения...",
+      "embedColor": "#8b5cf6",
+      "embedAuthor": "",
+      "buttonText": "Подать заявку",
+      "imageUrl": "",
+      "questions": [],
+      "settings": {
+        "reviewChannelId": "",
+        "logChannelId": "",
+        "cooldownMinutes": 5,
+        "interviewRoleId": ""
+      },
+      "actions": {
+        "accept": {
+          "dm": "",
+          "addRoles": [],
+          "removeRoles": []
+        },
+        "reject": {
+          "dm": "",
+          "addRoles": [],
+          "removeRoles": []
+        }
+      }
+    },
+    "1790857325250": {
+      "id": "1790857325250",
+      "channelId": "",
+      "messageId": "",
+      "embedTitle": "Новая форма",
+      "embedDesc": "Текст сообщения...",
+      "embedColor": "#8b5cf6",
+      "embedAuthor": "",
+      "buttonText": "Подать заявку",
+      "imageUrl": "",
+      "questions": [],
+      "settings": {
+        "reviewChannelId": "",
+        "logChannelId": "",
+        "cooldownMinutes": 5,
+        "interviewRoleId": ""
+      },
+      "actions": {
+        "accept": {
+          "dm": "",
+          "addRoles": [],
+          "removeRoles": []
+        },
+        "reject": {
+          "dm": "",
+          "addRoles": [],
+          "removeRoles": []
+        }
+      }
+    }
+  }
+}

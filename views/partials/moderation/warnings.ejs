@@ -1,0 +1,34 @@
+<style>
+    .warn-row {
+        background: #181920;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 10px;
+        padding: 14px 18px;
+    }
+    .warn-avatar { width: 32px; height: 32px; }
+</style>
+
+<div class="container-fluid py-4" id="moderationWarningsPage">
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <div>
+            <h3 class="fw-bold text-white mb-1"><i class="bi bi-exclamation-triangle text-accent me-2"></i>Предупреждения</h3>
+            <p class="text-muted small mb-0">Все варны, выданные через <code>/admin</code> и <code>/warn</code>. Срок действия и автонаказания настраиваются во вкладке «Настройки логов».</p>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <select class="form-select" id="warnsStatusFilter" style="background:#181920; color:#fff; border:1px solid rgba(255,255,255,0.1); width:190px;">
+                <option value="">Все</option>
+                <option value="active">Только активные</option>
+                <option value="expired">Только истёкшие</option>
+            </select>
+            <input type="text" class="form-control" id="warnsSearchInput" placeholder="Поиск по ID пользователя/причине..." style="background:#181920; color:#fff; border:1px solid rgba(255,255,255,0.1); width:280px;">
+        </div>
+    </div>
+
+    <div id="moderationWarningsList" class="d-flex flex-column gap-2"></div>
+
+    <p class="text-muted text-center py-5 mb-0" id="moderationWarningsEmpty" style="display:none;">
+        Предупреждений пока нет.
+    </p>
+</div>
+
+<script src="/js/moderationWarnings.js"></script>

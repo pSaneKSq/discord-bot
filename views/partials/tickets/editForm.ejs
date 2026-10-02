@@ -1,0 +1,388 @@
+<style>
+    .form-section-nav .nav-link {
+        color: #9ca3af;
+        background: rgba(255,255,255,0.04);
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        padding: 10px 16px;
+        border: 1px solid rgba(255,255,255,0.06);
+    }
+    .form-section-nav .nav-link.active {
+        color: #fff;
+        background: var(--accent-color);
+        border-color: var(--accent-color);
+    }
+    .role-checklist {
+        max-height: 170px;
+        overflow-y: auto;
+        background: #0f1015;
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 8px;
+        padding: 8px 10px;
+    }
+    .role-checklist::-webkit-scrollbar { width: 6px; }
+    .role-checklist::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+    .role-checklist .form-check { margin-bottom: 4px; }
+    .question-row { transition: border-color 0.15s ease; }
+    .question-row:hover { border-color: rgba(139,92,246,0.4) !important; }
+</style>
+
+<div class="container-fluid py-4" id="embedBuilderContainer" data-form-id="<%= form.id %>" data-guild-id="<%= guildId %>">
+
+    <!-- Заголовок -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h3 class="fw-bold text-white mb-1">
+                <i class="bi bi-code-square text-accent me-2"></i> Редактор эмбеда формы
+            </h3>
+            <p class="text-muted small mb-0">Настройте внешний вид сообщения и текст, который увидит пользователь в Discord</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/forms" class="btn btn-outline-secondary px-3 text-light text-decoration-none">Назад</a>
+            <button type="button" class="btn px-4 text-white fw-semibold shadow" id="saveEmbedBtn" style="background-color: var(--accent-color) !important; border: none;">
+                <i class="bi bi-save-fill me-1"></i> Сохранить всё
+            </button>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- ЛЕВАЯ КОЛОНКА: Настройки эмбеда (Инпуты) -->
+        <div class="col-lg-7">
+            <div class="glass-card p-4 mb-4" style="background: #181920; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px;">
+
+                <!-- ID Канала и ID Сообщения -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small" for="channelIdInput">ID Канала</label>
+                        <input type="text" class="form-control form-control-dark text-white font-monospace" id="channelIdInput" value="<%= form.channelId || '' %>" placeholder="1553072257218121808" style="background: #121318; border: 1px solid rgba(255, 255, 255, 0.1);">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small" for="messageIdInput">ID Сообщения (для ред.)</label>
+                        <input type="text" class="form-control form-control-dark text-white font-monospace" id="messageIdInput" value="<%= form.messageId || '' %>" placeholder="Укажите ID для изменения" style="background: #121318; border: 1px solid rgba(255, 255, 255, 0.1);">
+                    </div>
+                </div>
+
+                <!-- Заголовок -->
+                <div class="mb-3">
+                    <label class="form-label text-muted small" for="embedTitleInput">Заголовок</label>
+                    <input type="text" class="form-control form-control-dark text-white" id="embedTitleInput" value="<%= form.embedTitle || 'Заголовок объявления' %>" style="background: #121318; border: 1px solid rgba(255, 255, 255, 0.1);">
+                </div>
+
+                <!-- Основной текст -->
+                <div class="mb-3">
+                    <label class="form-label text-muted small" for="embedDescInput">Основной текст</label>
+                    <textarea class="form-control form-control-dark text-white" id="embedDescInput" rows="5" style="background: #121318; border: 1px solid rgba(255, 255, 255, 0.1);"><%= form.embedDesc || 'Текст сообщения...' %></textarea>
+                </div>
+
+                <!-- Цвет полосы -->
+                <div class="mb-3">
+                    <label class="form-label text-muted small" for="embedColorInput">Цвет полосы</label>
+                    <input type="color" class="form-control form-control-color w-100" id="embedColorInput" value="<%= form.embedColor || '#8b5cf6' %>" style="background: #121318; border: 1px solid rgba(255, 255, 255, 0.1); height: 40px;">
+                </div>
+
+                <!-- Автор -->
+                <div class="mb-3">
+                    <label class="form-label text-muted small" for="embedAuthorInput">Автор</label>
+                    <input type="text" class="form-control form-control-dark text-white" id="embedAuthorInput" value="<%= form.embedAuthor || '' %>" placeholder="Имя автора" style="background: #121318; border: 1px solid rgba(255, 255, 255, 0.1);">
+                </div>
+
+                <!-- Фото с устройства -->
+                <div class="mb-3">
+                    <label class="form-label text-muted small d-flex align-items-center gap-1">
+                        <i class="bi bi-file-earmark-image"></i> Фото с устройства
+                    </label>
+                    <input type="file" class="form-control form-control-dark text-white" id="imageFileUpload" accept="image/*" style="background: #121318; border: 1px solid rgba(255, 255, 255, 0.1);">
+                </div>
+
+                <!-- Или URL картинки -->
+                <div class="mb-3">
+                    <label class="form-label text-muted small d-flex align-items-center gap-1">
+                        <i class="bi bi-link-45deg"></i> Или URL картинки
+                    </label>
+                    <input type="text" class="form-control form-control-dark text-white" id="imageUrl" value="<%= form.imageUrl || '' %>" placeholder="https://i.imgur.com/example.png" style="background: #121318; border: 1px solid rgba(255, 255, 255, 0.1);">
+                </div>
+
+                <!-- Текст на кнопке -->
+                <div class="mb-3">
+                    <label class="form-label text-muted small" for="embedButtonText">Текст на кнопке</label>
+                    <input type="text" class="form-control form-control-dark text-white" id="embedButtonText" value="<%= form.buttonText || 'Подать заявку' %>" style="background: #121318; border: 1px solid rgba(255, 255, 255, 0.1);">
+                </div>
+            </div>
+        </div>
+
+        <!-- ПРАВАЯ КОЛОНКА: Живое превью в стиле Discord -->
+        <div class="col-lg-5">
+            <div class="glass-card p-4 sticky-top" style="background: #181920; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; top: 20px;">
+                <h6 class="text-muted text-uppercase fw-semibold mb-3 d-flex align-items-center gap-2" style="font-size: 0.75rem; letter-spacing: 0.5px;">
+                    <i class="bi bi-eye"></i> Предпросмотр в Discord
+                </h6>
+
+                <div class="p-3 rounded-3" style="background-color: #2b2d31;">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" style="width: 40px; height: 40px; background-color: #5865F2; font-size: 14px;">BOT</div>
+                        <div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="text-white fw-semibold" style="font-size: 0.95rem;">Ticket Bot</span>
+                                <span class="badge text-white px-1 py-0 rounded" style="background: #5865F2; font-size: 0.65rem;">БОТ</span>
+                            </div>
+                            <span class="text-muted" style="font-size: 0.7rem;">Сегодня в 12:00</span>
+                        </div>
+                    </div>
+
+                    <div class="rounded-2 p-3 position-relative" id="discordEmbedPreview" style="background: #111214; border-left: 4px solid <%= form.embedColor || '#8b5cf6' %>; margin-left: 48px;">
+                        <div class="text-white fw-semibold mb-1" id="prevAuthor" style="font-size: 0.8rem; display: <%= form.embedAuthor ? 'block' : 'none' %>;"><%= form.embedAuthor %></div>
+
+                        <h6 class="text-white fw-bold mb-2" id="prevTitle" style="font-size: 0.95rem;"><%= form.embedTitle || 'Заголовок объявления' %></h6>
+                        <p class="text-light mb-3" id="prevDesc" style="font-size: 0.85rem; white-space: pre-wrap; word-break: break-word;"><%= form.embedDesc || 'Текст сообщения...' %></p>
+
+                        <div class="mb-3" id="previewImageWrapper" style="display: <%= form.imageUrl ? 'block' : 'none' %>;">
+                            <img src="<%= form.imageUrl || '' %>" id="previewImage" class="rounded-2 w-100" style="max-height: 200px; object-fit: cover;">
+                        </div>
+
+                        <div class="mt-2">
+                            <button type="button" class="btn btn-sm text-white fw-medium d-inline-flex align-items-center gap-2 px-3 py-2" id="prevBtn" style="background-color: #5865F2; border: none; font-size: 0.8rem; border-radius: 4px;">
+                                <i class="bi bi-ui-checks"></i> <span id="prevBtnText"><%= form.buttonText || 'Подать заявку' %></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- НИЖНИЙ БЛОК: Вопросы / Настройки / Автодействия               -->
+    <!-- ============================================================ -->
+    <div class="mt-4">
+        <ul class="nav form-section-nav gap-2 mb-4" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active d-flex align-items-center gap-2" data-bs-toggle="pill" data-bs-target="#pane-questions" type="button" role="tab">
+                    <i class="bi bi-patch-question-fill"></i> Вопросы
+                    <span class="badge rounded-pill bg-dark bg-opacity-50" id="questionsCountBadge"><%= (form.questions || []).length %></span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link d-flex align-items-center gap-2" data-bs-toggle="pill" data-bs-target="#pane-settings" type="button" role="tab">
+                    <i class="bi bi-sliders"></i> Настройки
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link d-flex align-items-center gap-2" data-bs-toggle="pill" data-bs-target="#pane-actions" type="button" role="tab">
+                    <i class="bi bi-lightning-charge-fill"></i> Автодействия
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+
+            <!-- ==================== ВОПРОСЫ ==================== -->
+            <div class="tab-pane fade show active" id="pane-questions" role="tabpanel">
+                <div class="glass-card p-4" style="background: #181920; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px;">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <div>
+                            <h5 class="fw-bold text-white mb-1">Вопросы анкеты</h5>
+                            <p class="text-muted small mb-1">Пользователь увидит их в окнах Discord по 5 вопросов. Если вопросов больше 5, заявка заполняется в несколько шагов (между ними появляется кнопка «Продолжить»). Максимум — 20 вопросов.</p>
+                            <div class="small text-accent" id="questionsPagesHint"></div>
+                        </div>
+                        <button type="button" class="btn text-white fw-semibold px-3" id="addQuestionBtn" style="background: var(--accent-color); border: none;">
+                            <i class="bi bi-plus-lg me-1"></i> Добавить вопрос
+                        </button>
+                    </div>
+
+                    <div id="questionsListContainer" class="d-flex flex-column gap-3">
+                        <% (form.questions || []).forEach(q => { %>
+                            <div class="question-row p-3 rounded-3" data-question-id="<%= q.id %>" style="background: #121318; border: 1px solid rgba(255, 255, 255, 0.08);">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="text-muted small fw-semibold"><i class="bi bi-chat-left-text me-1"></i>Вопрос</span>
+                                    <button type="button" class="btn btn-sm btn-outline-danger delete-question-btn" title="Удалить вопрос">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label text-muted small">Текст вопроса</label>
+                                    <input type="text" class="form-control question-label" value="<%= q.label || '' %>" style="background: #0f1015; border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label text-muted small">Плейсхолдер (подсказка в пустом поле)</label>
+                                    <input type="text" class="form-control question-placeholder" value="<%= q.placeholder || '' %>" style="background: #0f1015; border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md-4">
+                                        <label class="form-label text-muted small">Мин. длина ответа</label>
+                                        <input type="number" min="0" max="4000" class="form-control question-min" value="<%= q.minLength ?? 0 %>" style="background: #0f1015; border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label text-muted small">Макс. длина ответа</label>
+                                        <input type="number" min="1" max="4000" class="form-control question-max" value="<%= q.maxLength ?? 500 %>" style="background: #0f1015; border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+                                    </div>
+                                    <div class="col-md-4 d-flex align-items-end pb-1">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input question-required" type="checkbox" role="switch" <%= q.required ? 'checked' : '' %>>
+                                            <label class="form-check-label text-muted small">Обязательный вопрос</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+
+                    <p class="text-muted text-center py-4 mb-0" id="noQuestionsMsg" style="display: <%= (form.questions || []).length ? 'none' : 'block' %>;">
+                        Пока нет ни одного вопроса. Нажмите «Добавить вопрос», чтобы начать.
+                    </p>
+                </div>
+            </div>
+
+            <!-- ==================== НАСТРОЙКИ ==================== -->
+            <div class="tab-pane fade" id="pane-settings" role="tabpanel">
+                <div class="glass-card p-4" style="background: #181920; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px;">
+                    <div class="d-flex align-items-center gap-2 mb-4">
+                        <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width:42px;height:42px;background:var(--accent-color);">
+                            <i class="bi bi-gear-fill text-white fs-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold text-white mb-0">Настройки формы</h5>
+                            <span class="text-muted small">Каналы и время ожидания между заявками</span>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label text-white fw-semibold" for="reviewChannelSelect">Канал для проверки</label>
+                            <p class="text-muted small mb-2">Куда будут приходить заявки на рассмотрение администрации.</p>
+                            <select class="form-select text-white" id="reviewChannelSelect" data-saved-value="<%= (form.settings && form.settings.reviewChannelId) || '' %>" style="background:#121318; border:1px solid rgba(255,255,255,0.1);">
+                                <option value="">-- Выберите канал --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-white fw-semibold" for="logChannelSelect">Канал логов <span class="text-muted small fw-normal">(необязательно)</span></label>
+                            <p class="text-muted small mb-2">Куда будут дублироваться решения (принято/отклонено).</p>
+                            <select class="form-select text-white" id="logChannelSelect" data-saved-value="<%= (form.settings && form.settings.logChannelId) || '' %>" style="background:#121318; border:1px solid rgba(255,255,255,0.1);">
+                                <option value="">Не выбрано</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-white fw-semibold" for="interviewRoleSelect">Роль для приглашения на разговор <span class="text-muted small fw-normal">(необязательно)</span></label>
+                            <p class="text-muted small mb-2">Эта роль автоматически получит доступ к временным каналам собеседования при нажатии «Пригласить на разговор». Если не выбрана — доступ получит только модератор, который нажал кнопку.</p>
+                             <select class="form-select text-white" id="interviewRoleSelect" data-saved-value="<%= (form.settings && form.settings.interviewRoleId) || '' %>" style="background:#121318; border:1px solid rgba(255,255,255,0.1);">
+                                  <option value="">Не выбрано</option>
+                             </select>
+                        </div>
+                    </div>
+
+                    <hr class="border-secondary border-opacity-25">
+
+                    <div class="mt-4">
+                        <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+                            <div>
+                                <label class="form-label text-white fw-semibold mb-0" for="cooldownSlider">
+                                    <i class="bi bi-hourglass-split text-warning me-1"></i> Время ожидания перед повторной подачей
+                                </label>
+                                <p class="text-muted small mb-0">Защита от спама повторными заявками.</p>
+                            </div>
+                            <span class="badge px-3 py-2" id="cooldownLabel" style="background:var(--accent-color); font-size:0.85rem;">
+                                <%= ((form.settings && form.settings.cooldownMinutes) ?? 5) === 0 ? 'Без ожидания' : `${(form.settings && form.settings.cooldownMinutes) ?? 5} мин.` %>
+                            </span>
+                        </div>
+
+                        <input type="range" class="form-range mt-3" id="cooldownSlider" min="0" max="60" step="5" value="<%= (form.settings && form.settings.cooldownMinutes) ?? 5 %>">
+
+                        <div class="d-flex justify-content-between text-muted mb-3" style="font-size:0.7rem;">
+                            <span>0м</span><span>15м</span><span>30м</span><span>45м</span><span>60м</span>
+                        </div>
+
+                        <div class="d-flex gap-2 flex-wrap">
+                            <button type="button" class="btn btn-sm cooldown-preset text-light" data-value="0" style="background: rgba(255,255,255,0.08); border:none;">Без ожидания</button>
+                            <button type="button" class="btn btn-sm cooldown-preset text-light" data-value="5" style="background: rgba(255,255,255,0.08); border:none;">5 минут</button>
+                            <button type="button" class="btn btn-sm cooldown-preset text-light" data-value="15" style="background: rgba(255,255,255,0.08); border:none;">15 минут</button>
+                            <button type="button" class="btn btn-sm cooldown-preset text-light" data-value="30" style="background: rgba(255,255,255,0.08); border:none;">30 минут</button>
+                            <button type="button" class="btn btn-sm cooldown-preset text-light" data-value="60" style="background: rgba(255,255,255,0.08); border:none;">1 час</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== АВТОДЕЙСТВИЯ ==================== -->
+            <div class="tab-pane fade" id="pane-actions" role="tabpanel">
+                <div class="mb-3">
+                    <h5 class="fw-bold text-white mb-1"><i class="bi bi-lightning-charge-fill text-accent me-2"></i>Автоматические действия</h5>
+                    <p class="text-muted small mb-0">Что произойдёт при принятии или отклонении заявки: сообщение в ЛС и изменение ролей.</p>
+                </div>
+
+                <div class="row g-4">
+                    <!-- ПРИНЯТИЕ -->
+                    <div class="col-lg-6">
+                        <div class="glass-card p-4 h-100" style="background: #181920; border: 1px solid rgba(34,197,94,0.25); border-radius: 12px;">
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:34px;height:34px;background:rgba(34,197,94,0.15);">
+                                    <i class="bi bi-check-lg text-success"></i>
+                                </div>
+                                <h6 class="fw-bold text-white mb-0">При принятии заявки</h6>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Личное сообщение (ЛС)</label>
+                                <textarea class="form-control text-white" id="acceptDmInput" rows="2" placeholder="Поздравляем! Ваша заявка принята." style="background:#0f1015; border:1px solid rgba(255,255,255,0.1);"><%= (form.actions && form.actions.accept && form.actions.accept.dm) || '' %></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-muted small d-flex align-items-center gap-1">Выдать роли</label>
+                                <input type="text" class="form-control form-control-sm mb-2 role-search text-white" data-target="acceptAddRoles" placeholder="Найти роль..." style="background:#0f1015; border:1px solid rgba(255,255,255,0.1);">
+                                <div class="role-checklist" id="acceptAddRoles" data-selected='<%- JSON.stringify((form.actions && form.actions.accept && form.actions.accept.addRoles) || []) %>'>
+                                    <span class="text-muted small">Загрузка ролей...</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="form-label text-muted small">Снять роли</label>
+                                <input type="text" class="form-control form-control-sm mb-2 role-search text-white" data-target="acceptRemoveRoles" placeholder="Найти роль..." style="background:#0f1015; border:1px solid rgba(255,255,255,0.1);">
+                                <div class="role-checklist" id="acceptRemoveRoles" data-selected='<%- JSON.stringify((form.actions && form.actions.accept && form.actions.accept.removeRoles) || []) %>'>
+                                    <span class="text-muted small">Загрузка ролей...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ОТКЛОНЕНИЕ -->
+                    <div class="col-lg-6">
+                        <div class="glass-card p-4 h-100" style="background: #181920; border: 1px solid rgba(239,68,68,0.25); border-radius: 12px;">
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:34px;height:34px;background:rgba(239,68,68,0.15);">
+                                    <i class="bi bi-x-lg text-danger"></i>
+                                </div>
+                                <h6 class="fw-bold text-white mb-0">При отклонении заявки</h6>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Личное сообщение (ЛС)</label>
+                                <textarea class="form-control text-white" id="rejectDmInput" rows="2" placeholder="К сожалению, заявка отклонена." style="background:#0f1015; border:1px solid rgba(255,255,255,0.1);"><%= (form.actions && form.actions.reject && form.actions.reject.dm) || '' %></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Выдать роли</label>
+                                <input type="text" class="form-control form-control-sm mb-2 role-search text-white" data-target="rejectAddRoles" placeholder="Найти роль..." style="background:#0f1015; border:1px solid rgba(255,255,255,0.1);">
+                                <div class="role-checklist" id="rejectAddRoles" data-selected='<%- JSON.stringify((form.actions && form.actions.reject && form.actions.reject.addRoles) || []) %>'>
+                                    <span class="text-muted small">Загрузка ролей...</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="form-label text-muted small">Снять роли</label>
+                                <input type="text" class="form-control form-control-sm mb-2 role-search text-white" data-target="rejectRemoveRoles" placeholder="Найти роль..." style="background:#0f1015; border:1px solid rgba(255,255,255,0.1);">
+                                <div class="role-checklist" id="rejectRemoveRoles" data-selected='<%- JSON.stringify((form.actions && form.actions.reject && form.actions.reject.removeRoles) || []) %>'>
+                                    <span class="text-muted small">Загрузка ролей...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="/js/embedBuilder.js"></script>
+<script src="/js/formQuestions.js"></script>
+<script src="/js/formSettings.js"></script>
+<script src="/js/formActions.js"></script>

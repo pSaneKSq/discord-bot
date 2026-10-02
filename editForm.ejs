@@ -1,0 +1,715 @@
+<!--
+  Файл целиком заменяет views/partials/tickets/editForm.ejs
+  Ничего больше подключать не нужно — весь JS уже внутри этого файла.
+  Схема данных соответствует formsStore.js:
+    questions: [{ id, label, placeholder, minLength, maxLength, required }]
+    settings:  { reviewChannelId, logChannelId, cooldownMinutes }
+    actions:   { accept: { dm, addRoles, removeRoles }, reject: { dm, addRoles, removeRoles } }
+-->
+<div class="container-fluid py-4">
+
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h3 class="fw-bold text-white mb-1"><i class="bi bi-code-slash text-accent me-2"></i> Редактор эмбеда формы</h3>
+      <p class="text-muted small mb-0">Настройте внешний вид сообщения и текст, который увидит пользователь в Discord</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="/forms" class="btn btn-outline-light btn-sm px-3">Назад</a>
+      <button type="button" id="saveEmbedBtn" class="btn btn-sm text-white fw-semibold px-3" style="background:#8b5cf6;border:none;">
+        <i class="bi bi-save2 me-1"></i> Сохранить эмбед
+      </button>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <!-- ================= ЛЕВАЯ КОЛОНКА: ПОЛЯ ЭМБЕДА ================= -->
+    <div class="col-lg-7">
+      <div class="glass-card p-4 rounded-4" style="background:#14141a;border:1px solid rgba(255,255,255,0.08);">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="text-muted small fw-semibold mb-1 d-block">ID Канала</label>
+            <input type="text" id="channelIdInput" class="form-control bg-dark text-light border-secondary" value="<%= form.channelId || '' %>">
+          </div>
+          <div class="col-md-6">
+            <label class="text-muted small fw-semibold mb-1 d-block">ID Сообщения (для ред.)</label>
+            <input type="text" id="messageIdInput" class="form-control bg-dark text-light border-secondary" placeholder="Укажите ID для изменения" value="<%= form.messageId || '' %>">
+          </div>
+        </div>
+
+        <div class="mt-3">
+          <label class="text-muted small fw-semibold mb-1 d-block">Заголовок</label>
+          <input type="text" id="embedTitle" class="form-control bg-dark text-light border-secondary" value="<%= form.embedTitle || '' %>">
+        </div>
+
+        <div class="mt-3">
+          <label class="text-muted small fw-semibold mb-1 d-block">Основной текст</label>
+          <textarea id="embedDescription" rows="5" class="form-control bg-dark text-light border-secondary"><%= form.embedDesc || '' %></textarea>
+        </div>
+
+        <div class="mt-3">
+          <label class="text-muted small fw-semibold mb-1 d-block">Цвет полосы</label>
+          <input type="color" id="embedColor" class="form-control form-control-color w-100" value="<%= form.embedColor || '#8b5cf6' %>" style="height:42px;">
+        </div>
+
+        <div class="mt-3">
+          <label class="text-muted small fw-semibold mb-1 d-block">Автор</label>
+          <input type="text" id="embedAuthor" class="form-control bg-dark text-light border-secondary" placeholder="Имя автора" value="<%= form.embedAuthor || '' %>">
+        </div>
+
+        <div class="mt-3">
+          <label class="text-muted small fw-semibold mb-1 d-block"><i class="bi bi-image me-1"></i>Фото с устройства</label>
+          <input type="file" id="imageFileUpload" accept="image/*" class="form-control bg-dark text-light border-secondary">
+        </div>
+
+        <div class="mt-3">
+          <label class="text-muted small fw-semibold mb-1 d-block"><i class="bi bi-link-45deg me-1"></i>Или URL картинки</label>
+          <input type="text" id="imageUrl" class="form-control bg-dark text-light border-secondary" placeholder="https://i.imgur.com/example.png" value="<%= form.imageUrl || '' %>">
+        </div>
+
+        <div class="mt-3">
+          <label class="text-muted small fw-semibold mb-1 d-block">Текст на кнопке</label>
+          <input type="text" id="buttonTextInput" class="form-control bg-dark text-light border-secondary" value="<%= form.buttonText || 'Подать заявку' %>">
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= ПРАВАЯ КОЛОНКА: ПРЕДПРОСМОТР ================= -->
+    <div class="col-lg-5">
+      <div class="glass-card p-4 rounded-4" style="background:#14141a;border:1px solid rgba(255,255,255,0.08);">
+        <div class="text-accent small fw-bold text-uppercase mb-3"><i class="bi bi-eye me-1"></i>Предпросмотр в Discord</div>
+        <div class="p-3 rounded-3" style="background:#313338;">
+          <div class="d-flex align-items-start gap-2 mb-2">
+            <img src="https://cdn.discordapp.com/embed/avatars/0.png" class="rounded-circle" width="36" height="36" alt="">
+            <div>
+              <div class="d-flex align-items-center gap-2">
+                <span class="fw-semibold text-white">Ticket Bot</span>
+                <span class="badge" style="background:#5865F2;font-size:0.6rem;">БОТ</span>
+              </div>
+              <span class="text-muted" style="font-size:0.75rem;">Сегодня, только что</span>
+            </div>
+          </div>
+          <div id="previewEmbed" style="border-left:4px solid #8b5cf6;background:#2b2d31;padding:12px;border-radius:6px;">
+            <div id="previewAuthor" class="text-muted small mb-1" style="display:none;"></div>
+            <div id="previewTitle" class="fw-bold text-white mb-1">Новая форма</div>
+            <div id="previewDescription" class="text-light small mb-2" style="white-space:pre-wrap;">Текст сообщения...</div>
+            <div id="previewImageWrapper" style="display:none;" class="mb-2">
+              <img id="previewImage" src="" class="img-fluid rounded-2" style="max-height:180px;" alt="">
+            </div>
+            <button type="button" class="btn btn-sm text-white" style="background:#5865F2;border:none;" disabled>
+              <i class="bi bi-send-fill me-1"></i><span id="previewButtonText">Подать заявку</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ДОПОЛНИТЕЛЬНЫЕ БЛОКИ ================= -->
+  <div class="form-editor-extra">
+    <style>
+      .form-editor-extra .chip {
+        display:inline-flex;align-items:center;gap:6px;
+        background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.4);
+        color:#c4b5fd;border-radius:20px;padding:4px 10px;font-size:0.8rem;margin:2px;
+      }
+      .form-editor-extra .chip .chip-x{cursor:pointer;opacity:.7;}
+      .form-editor-extra .chip .chip-x:hover{opacity:1;color:#fff;}
+      .form-editor-extra .picker-list{
+        max-height:160px;overflow-y:auto;background:rgba(255,255,255,0.03);
+        border:1px solid rgba(255,255,255,0.08);border-radius:10px;margin-top:6px;
+      }
+      .form-editor-extra .picker-item{
+        padding:8px 12px;cursor:pointer;font-size:0.85rem;color:#d1d5db;
+        display:flex;align-items:center;gap:6px;
+      }
+      .form-editor-extra .picker-item:hover{background:rgba(255,255,255,0.06);}
+      .form-editor-extra .picker-item.selected{background:rgba(139,92,246,0.2);color:#fff;}
+      .form-editor-extra .question-card{
+        background:#181920;border:1px solid rgba(255,255,255,0.08);border-radius:14px;
+        padding:16px;margin-bottom:12px;
+      }
+      .form-editor-extra .q-num{
+        width:28px;height:28px;border-radius:50%;background:#8b5cf6;color:#fff;
+        display:flex;align-items:center;justify-content:center;font-weight:600;font-size:0.85rem;
+      }
+      .form-editor-extra .action-card{border-radius:16px;padding:20px;background:#181920;}
+      .form-editor-extra .action-card.accept{border:1px solid rgba(34,197,94,0.3);}
+      .form-editor-extra .action-card.reject{border:1px solid rgba(239,68,68,0.3);}
+      .form-editor-extra .sub-field{margin-top:10px;}
+      .form-editor-extra .sub-field.disabled-field{opacity:.4;pointer-events:none;}
+      .form-editor-extra .preset-btn.active{background:#8b5cf6!important;border-color:#8b5cf6!important;color:#fff!important;}
+    </style>
+
+    <!-- ВОПРОСЫ -->
+    <div class="glass-card p-4 rounded-4 mb-4" style="background:#14141a;border:1px solid rgba(255,255,255,0.08);">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+          <h5 class="fw-bold text-white mb-1"><i class="bi bi-patch-question text-accent me-2"></i>Вопросы в заявке</h5>
+          <p class="text-muted small mb-0">Пользователь ответит на них при подаче заявки</p>
+        </div>
+        <button type="button" id="addQuestionBtn" class="btn btn-sm text-white fw-semibold" style="background:#8b5cf6;border:none;">
+          <i class="bi bi-plus-lg me-1"></i>Добавить вопрос
+        </button>
+      </div>
+      <div id="questionsList"></div>
+      <div id="noQuestionsMsg" class="text-muted small text-center py-3">Вопросов пока нет — нажмите «Добавить вопрос»</div>
+    </div>
+
+    <!-- НАСТРОЙКИ -->
+    <div class="glass-card p-4 rounded-4 mb-4" style="background:#14141a;border:1px solid rgba(255,255,255,0.08);">
+      <h5 class="fw-bold text-white mb-3"><i class="bi bi-sliders text-accent me-2"></i>Настройки заявки</h5>
+      <div class="row g-4">
+        <div class="col-md-6">
+          <label class="text-muted small fw-semibold text-uppercase mb-2 d-block">Канал для проверки</label>
+          <div id="reviewChannelPicker"></div>
+        </div>
+        <div class="col-md-6">
+          <label class="text-muted small fw-semibold text-uppercase mb-2 d-block">Канал логов <span class="text-muted" style="font-size:0.7rem;">(необязательно)</span></label>
+          <div id="logChannelPicker"></div>
+        </div>
+      </div>
+      <div class="mt-4">
+        <label class="text-muted small fw-semibold text-uppercase mb-2 d-block">Время ожидания повторной подачи</label>
+        <div class="d-flex align-items-center gap-3 mb-2">
+          <input type="range" class="form-range" min="0" max="60" step="1" id="cooldownRange" style="max-width:300px;">
+          <span class="badge bg-secondary" id="cooldownValueLabel">5 минут</span>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          <button type="button" class="btn btn-sm btn-outline-secondary preset-btn" data-value="0">Без ожидания</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary preset-btn" data-value="5">5 минут</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary preset-btn" data-value="15">15 минут</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary preset-btn" data-value="30">30 минут</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary preset-btn" data-value="60">1 час</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- АВТОМАТИЧЕСКИЕ ДЕЙСТВИЯ -->
+    <div class="glass-card p-4 rounded-4 mb-4" style="background:#14141a;border:1px solid rgba(255,255,255,0.08);">
+      <h5 class="fw-bold text-white mb-3"><i class="bi bi-lightning-charge text-accent me-2"></i>Автоматические действия</h5>
+      <div class="row g-4">
+        <div class="col-md-6">
+          <div class="action-card accept">
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <span class="d-flex align-items-center justify-content-center rounded-circle" style="width:28px;height:28px;background:rgba(34,197,94,0.15);color:#22c55e;"><i class="bi bi-check-lg"></i></span>
+              <span class="fw-bold text-white">При принятии заявки</span>
+            </div>
+            <div id="acceptActions"></div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="action-card reject">
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <span class="d-flex align-items-center justify-content-center rounded-circle" style="width:28px;height:28px;background:rgba(239,68,68,0.15);color:#ef4444;"><i class="bi bi-x-lg"></i></span>
+              <span class="fw-bold text-white">При отклонении заявки</span>
+            </div>
+            <div id="rejectActions"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-end mb-4">
+      <button type="button" id="saveFormExtrasBtn" class="btn text-white fw-semibold px-4" style="background:#8b5cf6;border:none;">
+        <i class="bi bi-save2 me-1"></i>Сохранить настройки
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const formId = '<%= form.id %>';
+  const guildId = '<%= typeof guildId !== "undefined" ? guildId : "" %>';
+
+  function escapeHtml(str) {
+    return String(str || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  function showToast(message, type) {
+    const el = document.createElement('div');
+    el.className = `alert alert-${type} position-fixed bottom-0 end-0 m-4 shadow`;
+    el.style.zIndex = 9999;
+    el.textContent = message;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3000);
+  }
+
+  // ============================================================
+  // 1. ЖИВОЙ ПРЕДПРОСМОТР ЭМБЕДА + СОХРАНЕНИЕ
+  // ============================================================
+  const titleInput = document.getElementById('embedTitle');
+  const descInput = document.getElementById('embedDescription');
+  const colorInput = document.getElementById('embedColor');
+  const authorInput = document.getElementById('embedAuthor');
+  const urlInput = document.getElementById('imageUrl');
+  const fileInput = document.getElementById('imageFileUpload');
+  const buttonTextInput = document.getElementById('buttonTextInput');
+  const channelIdInput = document.getElementById('channelIdInput');
+  const messageIdInput = document.getElementById('messageIdInput');
+
+  const previewEmbed = document.getElementById('previewEmbed');
+  const previewTitle = document.getElementById('previewTitle');
+  const previewDesc = document.getElementById('previewDescription');
+  const previewAuthor = document.getElementById('previewAuthor');
+  const previewImgWrapper = document.getElementById('previewImageWrapper');
+  const previewImg = document.getElementById('previewImage');
+  const previewButtonText = document.getElementById('previewButtonText');
+
+  function updatePreview() {
+    previewTitle.textContent = titleInput.value.trim() || 'Заголовок объявления';
+    previewDesc.textContent = descInput.value.trim() || 'Текст сообщения...';
+    previewEmbed.style.borderLeftColor = colorInput.value;
+
+    const authorVal = authorInput.value.trim();
+    if (authorVal) { previewAuthor.textContent = authorVal; previewAuthor.style.display = 'block'; }
+    else { previewAuthor.style.display = 'none'; }
+
+    if (urlInput.value.trim()) {
+      previewImg.src = urlInput.value.trim();
+      previewImgWrapper.style.display = 'block';
+    } else if (!fileInput.files || !fileInput.files[0]) {
+      previewImgWrapper.style.display = 'none';
+    }
+
+    previewButtonText.textContent = buttonTextInput.value.trim() || 'Подать заявку';
+  }
+
+  [titleInput, descInput, colorInput, authorInput, urlInput, buttonTextInput].forEach(el => {
+    el.addEventListener('input', updatePreview);
+    el.addEventListener('change', updatePreview);
+  });
+
+  fileInput.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = ev => { previewImg.src = ev.target.result; previewImgWrapper.style.display = 'block'; };
+      reader.readAsDataURL(file);
+    } else updatePreview();
+  });
+
+  updatePreview();
+
+  document.getElementById('saveEmbedBtn').addEventListener('click', async () => {
+    const payload = {
+      channelId: channelIdInput.value.trim(),
+      messageId: messageIdInput.value.trim(),
+      title: titleInput.value.trim(),
+      description: descInput.value,
+      color: colorInput.value,
+      author: authorInput.value.trim(),
+      imageUrl: urlInput.value.trim(),
+      buttonText: buttonTextInput.value.trim()
+    };
+    try {
+      const res = await fetch(`/api/forms/${formId}/update`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      showToast(data.success ? 'Эмбед сохранён' : (data.error || 'Ошибка сохранения'), data.success ? 'success' : 'danger');
+    } catch (e) {
+      showToast('Ошибка сети при сохранении', 'danger');
+    }
+  });
+
+  // ============================================================
+  // 2. ВОПРОСЫ (схема: id, label, placeholder, minLength, maxLength, required)
+  // ============================================================
+  const initialQuestions = <%- JSON.stringify(form.questions || []) %>;
+  const initialSettings = <%- JSON.stringify(form.settings || {}) %>;
+  const initialActions = <%- JSON.stringify(form.actions || { accept: {}, reject: {} }) %>;
+
+  function normalizeAction(a) {
+    a = a || {};
+    return {
+      dm: a.dm || '',
+      addRoles: Array.isArray(a.addRoles) ? a.addRoles : [],
+      removeRoles: Array.isArray(a.removeRoles) ? a.removeRoles : []
+    };
+  }
+
+  const state = {
+    questions: Array.isArray(initialQuestions) ? initialQuestions.map(q => ({
+      id: q.id || ('q_' + Math.random().toString(36).slice(2, 9)),
+      label: q.label || '',
+      placeholder: q.placeholder || '',
+      type: q.type || 'short',
+      minLength: q.minLength ?? '',
+      maxLength: q.maxLength ?? '',
+      required: q.required !== false
+    })) : [],
+    settings: {
+      reviewChannelId: initialSettings.reviewChannelId || '',
+      logChannelId: initialSettings.logChannelId || '',
+      cooldownMinutes: initialSettings.cooldownMinutes ?? 5
+    },
+    actions: {
+      accept: normalizeAction(initialActions.accept),
+      reject: normalizeAction(initialActions.reject)
+    }
+  };
+
+  // Переключатели "включено/выключено" — только для интерфейса.
+  // Если выключено, соответствующее поле уходит на сервер пустым,
+  // но введённый текст/роли остаются в памяти на случай, если включат обратно.
+  const uiToggles = {
+    accept: {
+      dm: Boolean(state.actions.accept.dm && state.actions.accept.dm.trim()),
+      give: state.actions.accept.addRoles.length > 0,
+      take: state.actions.accept.removeRoles.length > 0
+    },
+    reject: {
+      dm: Boolean(state.actions.reject.dm && state.actions.reject.dm.trim()),
+      give: state.actions.reject.addRoles.length > 0,
+      take: state.actions.reject.removeRoles.length > 0
+    }
+  };
+
+  let channelsCache = null;
+  let rolesCache = null;
+
+  async function loadChannels() {
+    if (channelsCache) return channelsCache;
+    try {
+      const res = await fetch(`/api/guilds/${guildId}/channels`);
+      channelsCache = res.ok ? await res.json() : [];
+    } catch (e) { channelsCache = []; }
+    return channelsCache;
+  }
+
+  async function loadRoles() {
+    if (rolesCache) return rolesCache;
+    try {
+      const res = await fetch(`/api/guilds/${guildId}/roles`);
+      rolesCache = res.ok ? await res.json() : [];
+    } catch (e) { rolesCache = []; }
+    return rolesCache;
+  }
+
+  // ---------- Одиночный выбор (канал) ----------
+  function buildSinglePicker(container, items, initialId, onChange) {
+    container.innerHTML = '';
+    const chipWrap = document.createElement('div');
+    chipWrap.className = 'mb-2';
+    const search = document.createElement('input');
+    search.type = 'text';
+    search.placeholder = 'Найти канал...';
+    search.className = 'form-control form-control-sm bg-dark text-light border-secondary';
+    const list = document.createElement('div');
+    list.className = 'picker-list';
+
+    let selectedId = initialId || '';
+
+    function renderChip() {
+      chipWrap.innerHTML = '';
+      const item = items.find(i => i.id === selectedId);
+      if (item) {
+        const chip = document.createElement('span');
+        chip.className = 'chip';
+        chip.innerHTML = `# ${escapeHtml(item.name)} <span class="chip-x">&times;</span>`;
+        chip.querySelector('.chip-x').addEventListener('click', () => {
+          selectedId = ''; onChange(''); renderChip(); renderList(search.value);
+        });
+        chipWrap.appendChild(chip);
+      } else {
+        chipWrap.innerHTML = '<span class="text-muted small">Канал не выбран</span>';
+      }
+    }
+
+    function renderList(filter) {
+      list.innerHTML = '';
+      const filtered = items.filter(i => i.name.toLowerCase().includes((filter || '').toLowerCase()));
+      if (filtered.length === 0) {
+        list.innerHTML = '<div class="picker-item text-muted">Ничего не найдено</div>';
+        return;
+      }
+      filtered.forEach(i => {
+        const el = document.createElement('div');
+        el.className = 'picker-item' + (i.id === selectedId ? ' selected' : '');
+        el.innerHTML = `<i class="bi bi-hash"></i> ${escapeHtml(i.name)}`;
+        el.addEventListener('click', () => {
+          selectedId = i.id; onChange(selectedId); renderChip(); renderList(search.value);
+        });
+        list.appendChild(el);
+      });
+    }
+
+    search.addEventListener('input', () => renderList(search.value));
+    container.appendChild(chipWrap);
+    container.appendChild(search);
+    container.appendChild(list);
+    renderChip();
+    renderList('');
+  }
+
+  // ---------- Множественный выбор (роли) ----------
+  function buildMultiPicker(container, items, initialIds, onChange) {
+    container.innerHTML = '';
+    const chipWrap = document.createElement('div');
+    chipWrap.className = 'mb-2 d-flex flex-wrap';
+    const search = document.createElement('input');
+    search.type = 'text';
+    search.placeholder = 'Найти роль...';
+    search.className = 'form-control form-control-sm bg-dark text-light border-secondary';
+    const list = document.createElement('div');
+    list.className = 'picker-list';
+
+    let selectedIds = Array.isArray(initialIds) ? [...initialIds] : [];
+
+    function renderChips() {
+      chipWrap.innerHTML = '';
+      if (selectedIds.length === 0) {
+        chipWrap.innerHTML = '<span class="text-muted small">Роли не выбраны</span>';
+        return;
+      }
+      selectedIds.forEach(id => {
+        const item = items.find(i => i.id === id);
+        if (!item) return;
+        const chip = document.createElement('span');
+        chip.className = 'chip';
+        chip.innerHTML = `${escapeHtml(item.name)} <span class="chip-x">&times;</span>`;
+        chip.querySelector('.chip-x').addEventListener('click', () => {
+          selectedIds = selectedIds.filter(x => x !== id);
+          onChange(selectedIds); renderChips(); renderList(search.value);
+        });
+        chipWrap.appendChild(chip);
+      });
+    }
+
+    function renderList(filter) {
+      list.innerHTML = '';
+      const filtered = items.filter(i => i.name.toLowerCase().includes((filter || '').toLowerCase()));
+      if (filtered.length === 0) {
+        list.innerHTML = '<div class="picker-item text-muted">Ничего не найдено</div>';
+        return;
+      }
+      filtered.forEach(i => {
+        const el = document.createElement('div');
+        el.className = 'picker-item' + (selectedIds.includes(i.id) ? ' selected' : '');
+        el.innerHTML = `<i class="bi bi-shield"></i> ${escapeHtml(i.name)}`;
+        el.addEventListener('click', () => {
+          if (selectedIds.includes(i.id)) selectedIds = selectedIds.filter(x => x !== i.id);
+          else selectedIds.push(i.id);
+          onChange(selectedIds); renderChips(); renderList(search.value);
+        });
+        list.appendChild(el);
+      });
+    }
+
+    search.addEventListener('input', () => renderList(search.value));
+    container.appendChild(chipWrap);
+    container.appendChild(search);
+    container.appendChild(list);
+    renderChips();
+    renderList('');
+  }
+
+  // ---------- Вопросы ----------
+  const questionsList = document.getElementById('questionsList');
+  const noQuestionsMsg = document.getElementById('noQuestionsMsg');
+
+  function renderQuestions() {
+    questionsList.innerHTML = '';
+    noQuestionsMsg.style.display = state.questions.length ? 'none' : 'block';
+
+    state.questions.forEach((q, idx) => {
+      const card = document.createElement('div');
+      card.className = 'question-card';
+      card.innerHTML = `
+        <div class="d-flex align-items-start gap-3">
+          <div class="q-num mt-1">${idx + 1}</div>
+          <div class="flex-grow-1">
+            <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary mb-2 q-label"
+              placeholder="Текст вопроса" value="${escapeHtml(q.label)}">
+            <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary mb-2 q-placeholder"
+              placeholder="Подсказка в поле ответа (placeholder)" value="${escapeHtml(q.placeholder)}">
+            <div class="row g-2 align-items-center">
+              <div class="col-auto">
+                <select class="form-select form-select-sm bg-dark text-light border-secondary q-type">
+                  <option value="short" ${q.type === 'short' ? 'selected' : ''}>Короткий текст</option>
+                  <option value="long" ${q.type === 'long' ? 'selected' : ''}>Длинный текст</option>
+                  <option value="number" ${q.type === 'number' ? 'selected' : ''}>Число</option>
+                </select>
+              </div>
+              <div class="col-auto">
+                <input type="number" class="form-control form-control-sm bg-dark text-light border-secondary q-min" style="width:90px;"
+                  placeholder="Мин." value="${q.minLength}">
+              </div>
+              <div class="col-auto">
+                <input type="number" class="form-control form-control-sm bg-dark text-light border-secondary q-max" style="width:90px;"
+                  placeholder="Макс." value="${q.maxLength}">
+              </div>
+              <div class="col-auto">
+                <div class="form-check form-switch">
+                  <input class="form-check-input q-required" type="checkbox" role="switch" ${q.required ? 'checked' : ''}>
+                  <label class="form-check-label text-muted small">Обязательный</label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex flex-column gap-1">
+            <button type="button" class="btn btn-sm btn-outline-secondary q-up" title="Вверх"><i class="bi bi-arrow-up"></i></button>
+            <button type="button" class="btn btn-sm btn-outline-secondary q-down" title="Вниз"><i class="bi bi-arrow-down"></i></button>
+            <button type="button" class="btn btn-sm btn-outline-danger q-del" title="Удалить"><i class="bi bi-trash"></i></button>
+          </div>
+        </div>
+      `;
+
+      card.querySelector('.q-label').addEventListener('input', e => q.label = e.target.value);
+      card.querySelector('.q-placeholder').addEventListener('input', e => q.placeholder = e.target.value);
+      card.querySelector('.q-type').addEventListener('change', e => q.type = e.target.value);
+      card.querySelector('.q-min').addEventListener('input', e => q.minLength = e.target.value);
+      card.querySelector('.q-max').addEventListener('input', e => q.maxLength = e.target.value);
+      card.querySelector('.q-required').addEventListener('change', e => q.required = e.target.checked);
+      card.querySelector('.q-del').addEventListener('click', () => { state.questions.splice(idx, 1); renderQuestions(); });
+      card.querySelector('.q-up').addEventListener('click', () => {
+        if (idx === 0) return;
+        [state.questions[idx - 1], state.questions[idx]] = [state.questions[idx], state.questions[idx - 1]];
+        renderQuestions();
+      });
+      card.querySelector('.q-down').addEventListener('click', () => {
+        if (idx === state.questions.length - 1) return;
+        [state.questions[idx + 1], state.questions[idx]] = [state.questions[idx], state.questions[idx + 1]];
+        renderQuestions();
+      });
+
+      questionsList.appendChild(card);
+    });
+  }
+
+  document.getElementById('addQuestionBtn').addEventListener('click', () => {
+    state.questions.push({
+      id: 'q_' + Math.random().toString(36).slice(2, 9),
+      label: '', placeholder: '', type: 'short', minLength: '', maxLength: '', required: true
+    });
+    renderQuestions();
+  });
+
+  renderQuestions();
+
+  // ---------- Настройки: каналы и кулдаун ----------
+  loadChannels().then(channels => {
+    buildSinglePicker(document.getElementById('reviewChannelPicker'), channels, state.settings.reviewChannelId, id => state.settings.reviewChannelId = id);
+    buildSinglePicker(document.getElementById('logChannelPicker'), channels, state.settings.logChannelId, id => state.settings.logChannelId = id);
+  });
+
+  const cooldownRange = document.getElementById('cooldownRange');
+  const cooldownValueLabel = document.getElementById('cooldownValueLabel');
+  const presetBtns = document.querySelectorAll('.preset-btn');
+
+  function formatCooldown(v) {
+    v = Number(v);
+    if (v === 0) return 'Без ожидания';
+    if (v < 60) return `${v} минут`;
+    return '1 час';
+  }
+
+  function setCooldown(v) {
+    state.settings.cooldownMinutes = Number(v);
+    cooldownRange.value = v;
+    cooldownValueLabel.textContent = formatCooldown(v);
+    presetBtns.forEach(b => b.classList.toggle('active', Number(b.dataset.value) === Number(v)));
+  }
+
+  cooldownRange.addEventListener('input', e => setCooldown(e.target.value));
+  presetBtns.forEach(b => b.addEventListener('click', () => setCooldown(b.dataset.value)));
+  setCooldown(state.settings.cooldownMinutes);
+
+  // ---------- Автоматические действия ----------
+  function renderActionBlock(container, key) {
+    const action = state.actions[key];
+    const toggles = uiToggles[key];
+    container.innerHTML = `
+      <div class="form-check form-switch mb-2">
+        <input class="form-check-input dm-toggle" type="checkbox" role="switch" ${toggles.dm ? 'checked' : ''}>
+        <label class="form-check-label text-light small">Отправить сообщение в ЛС</label>
+      </div>
+      <div class="sub-field ${toggles.dm ? '' : 'disabled-field'}" data-sub="dm">
+        <textarea class="form-control form-control-sm bg-dark text-light border-secondary dm-text" rows="2"
+          placeholder="${key === 'accept' ? 'Поздравляем! Ваша заявка принята.' : 'К сожалению, ваша заявка отклонена.'}">${escapeHtml(action.dm)}</textarea>
+      </div>
+
+      <div class="form-check form-switch mb-2 mt-3">
+        <input class="form-check-input giveroles-toggle" type="checkbox" role="switch" ${toggles.give ? 'checked' : ''}>
+        <label class="form-check-label text-light small">Выдать роли</label>
+      </div>
+      <div class="sub-field ${toggles.give ? '' : 'disabled-field'}" data-sub="give"></div>
+
+      <div class="form-check form-switch mb-2 mt-3">
+        <input class="form-check-input takeroles-toggle" type="checkbox" role="switch" ${toggles.take ? 'checked' : ''}>
+        <label class="form-check-label text-light small">Снять роли</label>
+      </div>
+      <div class="sub-field ${toggles.take ? '' : 'disabled-field'}" data-sub="take"></div>
+    `;
+
+    const dmToggle = container.querySelector('.dm-toggle');
+    const dmSub = container.querySelector('[data-sub="dm"]');
+    const dmText = container.querySelector('.dm-text');
+    dmToggle.addEventListener('change', e => { toggles.dm = e.target.checked; dmSub.classList.toggle('disabled-field', !toggles.dm); });
+    dmText.addEventListener('input', e => action.dm = e.target.value);
+
+    const giveToggle = container.querySelector('.giveroles-toggle');
+    const giveSub = container.querySelector('[data-sub="give"]');
+    giveToggle.addEventListener('change', e => { toggles.give = e.target.checked; giveSub.classList.toggle('disabled-field', !toggles.give); });
+
+    const takeToggle = container.querySelector('.takeroles-toggle');
+    const takeSub = container.querySelector('[data-sub="take"]');
+    takeToggle.addEventListener('change', e => { toggles.take = e.target.checked; takeSub.classList.toggle('disabled-field', !toggles.take); });
+
+    loadRoles().then(roles => {
+      buildMultiPicker(giveSub, roles, action.addRoles, ids => action.addRoles = ids);
+      buildMultiPicker(takeSub, roles, action.removeRoles, ids => action.removeRoles = ids);
+    });
+  }
+
+  renderActionBlock(document.getElementById('acceptActions'), 'accept');
+  renderActionBlock(document.getElementById('rejectActions'), 'reject');
+
+  function buildActionPayload(key) {
+    const a = state.actions[key];
+    const t = uiToggles[key];
+    return {
+      dm: t.dm ? a.dm : '',
+      addRoles: t.give ? a.addRoles : [],
+      removeRoles: t.take ? a.removeRoles : []
+    };
+  }
+
+  // ---------- Сохранение вопросов/настроек/автодействий ----------
+  document.getElementById('saveFormExtrasBtn').addEventListener('click', async () => {
+    const payload = {
+      questions: state.questions
+        .filter(q => q.label.trim() !== '')
+        .map(q => ({
+          id: q.id,
+          label: q.label.trim(),
+          placeholder: q.placeholder.trim(),
+          minLength: q.minLength === '' ? null : Number(q.minLength),
+          maxLength: q.maxLength === '' ? null : Number(q.maxLength),
+          required: q.required
+        })),
+      settings: {
+        reviewChannelId: state.settings.reviewChannelId,
+        logChannelId: state.settings.logChannelId,
+        cooldownMinutes: state.settings.cooldownMinutes
+      },
+      actions: { accept: buildActionPayload('accept'), reject: buildActionPayload('reject') }
+    };
+
+    try {
+      const res = await fetch(`/api/forms/${formId}/update`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      showToast(data.success ? 'Настройки формы сохранены' : (data.error || 'Ошибка сохранения'), data.success ? 'success' : 'danger');
+    } catch (e) {
+      showToast('Ошибка сети при сохранении', 'danger');
+    }
+  });
+})();
+</script>

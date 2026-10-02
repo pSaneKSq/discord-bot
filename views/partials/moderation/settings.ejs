@@ -1,0 +1,137 @@
+<style>
+    .card-panel {
+        background: #181920;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+        padding: 20px 24px;
+        height: 100%;
+    }
+    .warn-step-row .form-control,
+    .warn-step-row .form-select {
+        background: #0f1015;
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+</style>
+
+<div class="container-fluid py-4" id="moderationSettingsPage" data-guild-id="<%= guildId %>">
+    <div class="mb-4">
+        <h3 class="fw-bold text-white mb-1"><i class="bi bi-shield-lock text-accent me-2"></i>Настройки логов</h3>
+        <p class="text-muted small mb-0">Куда отправлять журнал действий модерации, как работают предупреждения и логи сообщений</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card-panel">
+                <h5 class="text-white mb-3">Канал логов в Discord</h5>
+                <p class="text-muted small mb-3">Бот будет присылать сюда эмбеды о варнах, входах/выходах участников и других событиях. Канал необязателен — на сайте (вкладка «Журнал») логи копятся в любом случае.</p>
+                <label class="form-label text-muted small">Канал</label>
+                <select id="logChannelSelect" class="form-select mb-3" style="background:#181920; color:#fff; border:1px solid rgba(255,255,255,0.1);">
+                    <option value="">Загрузка каналов...</option>
+                </select>
+                <button class="btn btn-accent text-white save-settings-btn"><i class="bi bi-save me-1"></i>Сохранить</button>
+                <div class="settings-saved-msg text-success small mt-2" style="display:none;">✅ Сохранено</div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card-panel">
+                <h5 class="text-white mb-3">Какие события дублировать в Discord-канал</h5>
+                <p class="text-muted small mb-3">Событие пишется в журнал на сайте всегда. Переключатель влияет только на то, дублировать ли его в Discord-канал.</p>
+
+                <div class="form-check form-switch d-flex align-items-center justify-content-between mb-3 py-2 border-bottom border-secondary border-opacity-10">
+                    <label class="form-check-label text-white" for="eventWarn">⚠️ Предупреждения (выдача/снятие)</label>
+                    <input class="form-check-input" type="checkbox" role="switch" id="eventWarn">
+                </div>
+                <div class="form-check form-switch d-flex align-items-center justify-content-between mb-3 py-2 border-bottom border-secondary border-opacity-10">
+                    <label class="form-check-label text-white" for="eventMembers">📥 Вход и выход участников</label>
+                    <input class="form-check-input" type="checkbox" role="switch" id="eventMembers">
+                </div>
+                <div class="form-check form-switch d-flex align-items-center justify-content-between mb-3 py-2 border-bottom border-secondary border-opacity-10">
+                    <label class="form-check-label text-white" for="eventSostav">🚨 Экстренный созыв состава</label>
+                    <input class="form-check-input" type="checkbox" role="switch" id="eventSostav">
+                </div>
+                <div class="form-check form-switch d-flex align-items-center justify-content-between mb-3 py-2 border-bottom border-secondary border-opacity-10">
+                    <label class="form-check-label text-white" for="eventFormDecision">📝 Решения по заявкам (принято/отклонено)</label>
+                    <input class="form-check-input" type="checkbox" role="switch" id="eventFormDecision">
+                </div>
+                <div class="form-check form-switch d-flex align-items-center justify-content-between mb-3 py-2 border-bottom border-secondary border-opacity-10">
+                    <label class="form-check-label text-white" for="eventAutomod">🤖 Автомодерация (удалённые сообщения)</label>
+                    <input class="form-check-input" type="checkbox" role="switch" id="eventAutomod">
+                </div>
+                <div class="form-check form-switch d-flex align-items-center justify-content-between mb-3 py-2 border-bottom border-secondary border-opacity-10">
+                    <label class="form-check-label text-white" for="eventMessageEdit">✏️ Правки сообщений <span class="text-muted small">(может быть много)</span></label>
+                    <input class="form-check-input" type="checkbox" role="switch" id="eventMessageEdit">
+                </div>
+                <div class="form-check form-switch d-flex align-items-center justify-content-between mb-3 py-2 border-bottom border-secondary border-opacity-10">
+                    <label class="form-check-label text-white" for="eventMessageDelete">🗑️ Удаления сообщений <span class="text-muted small">(может быть много)</span></label>
+                    <input class="form-check-input" type="checkbox" role="switch" id="eventMessageDelete">
+                </div>
+                <div class="form-check form-switch d-flex align-items-center justify-content-between mb-3 py-2 border-bottom border-secondary border-opacity-10">
+                    <label class="form-check-label text-white" for="eventWeeklyReport">📊 Еженедельный отчёт (отправка и пропуски)</label>
+                    <input class="form-check-input" type="checkbox" role="switch" id="eventWeeklyReport">
+                </div>
+                <div class="form-check form-switch d-flex align-items-center justify-content-between mb-3 py-2 border-bottom border-secondary border-opacity-10">
+                    <label class="form-check-label text-white" for="eventPoll">🗳️ Опросы (предложения, одобрения, отклонения)</label>
+                    <input class="form-check-input" type="checkbox" role="switch" id="eventPoll">
+                </div>
+                <div class="form-check form-switch d-flex align-items-center justify-content-between py-2">
+                    <label class="form-check-label text-white" for="eventOther">ℹ️ Прочие системные события</label>
+                    <input class="form-check-input" type="checkbox" role="switch" id="eventOther">
+                </div>
+            </div>
+        </div>
+
+        <!-- ПРЕДУПРЕЖДЕНИЯ: срок действия и ступени наказаний -->
+        <div class="col-lg-7">
+            <div class="card-panel">
+                <h5 class="text-white mb-3"><i class="bi bi-exclamation-triangle text-warning me-2"></i>Предупреждения: срок и наказания</h5>
+
+                <label class="form-label text-muted small" for="warnExpireDays">Срок действия нового предупреждения (дней)</label>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <input type="number" min="0" max="3650" id="warnExpireDays" class="form-control" style="width:120px; background:#0f1015; color:#fff; border:1px solid rgba(255,255,255,0.1);">
+                    <span class="text-muted small">0 — не истекает. Старые варны без срока остаются бессрочными.</span>
+                </div>
+
+                <hr class="border-secondary border-opacity-25 my-3">
+
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div>
+                        <div class="text-white fw-semibold">Автонаказания по числу активных варнов</div>
+                        <div class="text-muted small">Когда число активных предупреждений достигает значения — бот применяет наказание. Таймаут — максимум 40320 минут (28 дней).</div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-light flex-shrink-0" id="addWarnStepBtn"><i class="bi bi-plus-lg me-1"></i>Ступень</button>
+                </div>
+
+                <div id="warnStepsList"></div>
+                <div id="warnStepsEmpty" class="text-muted small" style="display:none;">Ступеней нет — варны считаются, но наказания автоматически не применяются.</div>
+
+                <p class="text-muted small mt-3 mb-0">Боту нужны права «Ограничивать участников» (таймаут) и «Выгонять участников» (кик), а его роль должна стоять выше ролей нарушителей.</p>
+            </div>
+        </div>
+
+        <!-- ЛОГИ ПРАВОК И УДАЛЕНИЙ -->
+        <div class="col-lg-5">
+            <div class="card-panel">
+                <h5 class="text-white mb-3"><i class="bi bi-chat-square-text text-info me-2"></i>Логи правок и удалений</h5>
+                <p class="text-muted small mb-3">В журнал попадает текст «было → стало». Личные каналы (<code>ticket-*</code>, <code>собеседование-*</code>) и канал логов не записываются. Изменения применяются в течение 10 секунд.</p>
+
+                <div class="form-check form-switch d-flex align-items-center justify-content-between mb-3 py-2 border-bottom border-secondary border-opacity-10">
+                    <label class="form-check-label text-white" for="messageLogEnabled">Записывать правки и удаления</label>
+                    <input class="form-check-input" type="checkbox" role="switch" id="messageLogEnabled">
+                </div>
+
+                <label class="form-label text-muted small" for="messageLogDays">Хранить записи (дней)</label>
+                <input type="number" min="1" max="365" id="messageLogDays" class="form-control mb-1" style="width:120px; background:#0f1015; color:#fff; border:1px solid rgba(255,255,255,0.1);">
+                <div class="text-muted small">Старые записи о правках и удалениях удаляются автоматически.</div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <button class="btn btn-accent text-white save-settings-btn"><i class="bi bi-save me-1"></i>Сохранить все настройки</button>
+            <span class="settings-saved-msg text-success small ms-2" style="display:none;">✅ Сохранено</span>
+        </div>
+    </div>
+</div>
+
+<script src="/js/moderationSettings.js"></script>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= clan.hero.title %></title>
+    <link rel="icon" href="/img/logo.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root { --card: rgba(9,13,30,.62); --line: rgba(160,185,255,.16); --soft: rgba(255,255,255,.72); }
+        html { scroll-behavior: smooth; background: #02030a; }
+        body { margin: 0; background: #02030a; color: #fff; overflow-x: hidden; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+        #sky, #warp { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; }
+        #sky { z-index: 0; } #warp { z-index: 1; pointer-events: none; }
+        .vignette { position: fixed; inset: 0; z-index: 2; pointer-events: none; background: radial-gradient(ellipse at center, transparent 35%, rgba(2,3,10,.75) 100%); }
+
+        /* ---- навигация ---- */
+        .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 20; padding: 14px 36px; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to bottom, rgba(2,3,10,.85), rgba(2,3,10,0)); }
+        .brand { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; font-weight: 700; font-size: 1.25rem; }
+        .brand img { width: 34px; height: 34px; }
+        .links { display: flex; gap: 26px; align-items: center; }
+        .links a.l { color: var(--soft); text-decoration: none; font-weight: 500; }
+        .links a.l:hover { color: #fff; }
+        .user { display: flex; align-items: center; gap: 10px; }
+        .user img { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); }
+        .user .nm { font-weight: 600; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .user form { margin: 0; }
+        .pill { background: rgba(255,255,255,.08); color: #fff; border: 1px solid var(--line); border-radius: 99px; padding: 5px 14px; font-size: .85rem; text-decoration: none; cursor: pointer; }
+        .pill:hover { background: rgba(255,255,255,.16); color: #fff; }
+
+        /* ---- главный экран ---- */
+        .hero { position: relative; z-index: 5; min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 90px 20px 60px; }
+        .hero .logo { width: 220px; height: 220px; margin: 0 auto 26px; filter: drop-shadow(0 0 18px rgba(170,190,255,.55)) drop-shadow(0 0 60px rgba(90,120,255,.35)); animation: fl 7s ease-in-out infinite; }
+        .hero .logo img { width: 100%; height: 100%; object-fit: contain; }
+        @keyframes fl { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+        .hero h1 { font-size: clamp(2.4rem, 6vw, 4rem); font-weight: 800; margin: 0 0 12px; text-shadow: 0 4px 24px rgba(0,0,0,.7); }
+        .hero p.sub { font-size: 1.3rem; color: var(--soft); margin: 0 auto 40px; max-width: 640px; }
+        .btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+        .b1 { background: #e9edff; color: #0a0d1c; border-radius: 50px; padding: 15px 38px; font-weight: 700; text-decoration: none; box-shadow: 0 0 30px rgba(150,170,255,.35); transition: .25s; }
+        .b1:hover { transform: translateY(-3px); box-shadow: 0 0 46px rgba(150,170,255,.6); color: #0a0d1c; }
+        .b2 { background: rgba(255,255,255,.06); color: #fff; border: 1px solid rgba(255,255,255,.3); border-radius: 50px; padding: 15px 38px; font-weight: 600; text-decoration: none; backdrop-filter: blur(8px); transition: .25s; }
+        .b2:hover { background: rgba(255,255,255,.14); color: #fff; }
+        .err { position: fixed; top: 74px; left: 50%; transform: translateX(-50%); z-index: 30; background: rgba(120,20,30,.9); border: 1px solid rgba(255,120,120,.4); padding: 10px 20px; border-radius: 12px; }
+
+        /* ---- секции ---- */
+        .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+        .sec { position: relative; z-index: 5; padding: 100px 0 10px; scroll-margin-top: 50px; }
+        .sec h2 { font-size: 2.3rem; font-weight: 800; margin: 0 0 12px; }
+        .sec .intro { color: var(--soft); max-width: 660px; white-space: pre-line; line-height: 1.6; margin: 0 0 8px; }
+        .head { border-bottom: 1px solid var(--line); padding-bottom: 22px; margin-bottom: 44px; }
+        .about { max-width: 780px; white-space: pre-line; line-height: 1.75; color: var(--soft); font-size: 1.08rem; }
+
+        /* история */
+        .tl { position: relative; padding-left: 34px; max-width: 860px; }
+        .tl::before { content: ''; position: absolute; left: 7px; top: 6px; bottom: 6px; width: 1px; background: linear-gradient(to bottom, rgba(160,185,255,.5), rgba(160,185,255,.05)); }
+        .period { margin: 46px 0 22px -34px; font-size: 1.1rem; font-weight: 700; color: #bcd0ff; display: flex; align-items: center; gap: 12px; }
+        .period::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+        .tl-item { position: relative; margin-bottom: 30px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 22px 26px; backdrop-filter: blur(6px); }
+        .tl-item::before { content: ''; position: absolute; left: -33px; top: 28px; width: 11px; height: 11px; border-radius: 50%; background: #02030a; border: 2px solid #bcd0ff; box-shadow: 0 0 12px rgba(160,185,255,.7); }
+        .date { color: #9db6ff; font-size: .9rem; font-weight: 600; margin-bottom: 4px; }
+        .tl-item h3 { font-size: 1.35rem; margin: 0 0 10px; font-weight: 700; }
+        .tl-item .tx { white-space: pre-line; line-height: 1.7; color: var(--soft); }
+        .tl-item img { display: block; max-width: 100%; border-radius: 12px; margin-top: 16px; cursor: zoom-in; }
+        .tl-item img.al-left { margin-right: auto; } .tl-item img.al-center { margin-left: auto; margin-right: auto; } .tl-item img.al-right { margin-left: auto; }
+
+        /* руководство */
+        .leaders { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 26px; align-items: start; }
+        .leaders.three .leader:nth-child(2) { margin-top: -24px; }
+        .leader { background: var(--card); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; backdrop-filter: blur(6px); }
+        .ph { aspect-ratio: 4/5; position: relative; background: #070a18; }
+        .ph img.photo { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .ph .none { position: absolute; inset: 0; display: grid; place-items: center; }
+        .ph .none img { width: 42%; opacity: .22; }
+        .ph::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 38%; background: linear-gradient(to top, rgba(7,10,24,.95), transparent); }
+        .info { padding: 20px 22px 26px; }
+        .role { display: inline-block; font-size: .82rem; color: #bcd0ff; border: 1px solid rgba(160,185,255,.35); border-radius: 99px; padding: 3px 12px; margin-bottom: 10px; }
+        .leader h3 { margin: 0 0 8px; font-size: 1.5rem; font-weight: 700; }
+        .bio { color: var(--soft); white-space: pre-line; line-height: 1.6; font-size: .95rem; margin: 0; }
+
+        /* администрация */
+        .staff { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
+        .st { display: flex; gap: 16px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; backdrop-filter: blur(6px); }
+        .st .av { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: #070a18; border: 1px solid var(--line); }
+        .st h4 { margin: 0 0 4px; font-size: 1.1rem; font-weight: 700; }
+        .st .role { margin-bottom: 8px; }
+
+        /* основа */
+        .count { color: #9db6ff; margin-bottom: 20px; }
+        .mem { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+        .m { display: flex; align-items: center; gap: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 99px; padding: 6px 16px 6px 6px; }
+        .m img { width: 40px; height: 40px; border-radius: 50%; }
+        .m span { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        /* галерея */
+        .gal { columns: 3 260px; column-gap: 16px; }
+        .gal figure { break-inside: avoid; margin: 0 0 16px; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); position: relative; }
+        .gal img { width: 100%; display: block; cursor: zoom-in; }
+        .gal figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 26px 14px 10px; font-size: .9rem; background: linear-gradient(to top, rgba(2,3,10,.9), transparent); }
+        #lb { position: fixed; inset: 0; z-index: 100; background: rgba(2,3,10,.92); display: none; align-items: center; justify-content: center; cursor: zoom-out; padding: 24px; }
+        #lb.on { display: flex; } #lb img { max-width: 100%; max-height: 100%; border-radius: 10px; }
+
+        footer { position: relative; z-index: 5; margin-top: 110px; padding: 34px; text-align: center; color: rgba(255,255,255,.5); background: linear-gradient(to top, rgba(2,3,10,.85), transparent); }
+
+        @media (max-width: 900px) { .links a.l { display: none; } .nav { padding: 12px 16px; } .leaders.three .leader:nth-child(2) { margin-top: 0; } .user .nm { display: none; } }
+    </style>
+</head>
+<body>
+<canvas id="sky"></canvas><canvas id="warp"></canvas><div class="vignette"></div>
+
+<%
+const sec = clan.sections;
+const hasHist = clan.history.length, hasLead = clan.leaders.length, hasStaff = clan.staff.length;
+const hasMem = clan.members !== null, hasGal = clan.gallery.length, hasAbout = !!clan.about.text;
+%>
+
+<div class="nav">
+    <a href="/" class="brand"><img src="/img/logo.png" alt=""><%= clan.hero.title %></a>
+    <div class="links">
+        <% if (hasHist) { %><a class="l" href="#history">История</a><% } %>
+        <% if (hasLead) { %><a class="l" href="#leaders">Руководство</a><% } %>
+        <% if (hasStaff) { %><a class="l" href="#staff">Администрация</a><% } %>
+        <% if (hasMem) { %><a class="l" href="#members">Основа</a><% } %>
+        <% if (hasGal) { %><a class="l" href="#gallery">Галерея</a><% } %>
+        <% if (user) { %>
+            <div class="user">
+                <img src="<%= user.avatar %>" alt="">
+                <span class="nm"><%= user.username %></span>
+                <% if (isPanel) { %><a class="pill" href="/dashboard">Панель</a><% } %>
+                <form method="POST" action="/logout"><button class="pill" type="submit">Выйти</button></form>
+            </div>
+        <% } else { %>
+            <a href="/auth/discord" class="btn btn-light rounded-pill px-4 fw-semibold">Войти</a>
+        <% } %>
+    </div>
+</div>
+
+<% if (error) { %><div class="err"><%= error %></div><% } %>
+
+<header class="hero">
+    <div>
+        <div class="logo"><img src="/img/logo.png" alt=""></div>
+        <h1><%= clan.hero.title %></h1>
+        <% if (clan.hero.subtitle) { %><p class="sub"><%= clan.hero.subtitle %></p><% } %>
+        <div class="btns">
+            <a class="b1" href="#<%= hasHist ? 'history' : (hasAbout ? 'about' : 'leaders') %>"><%= clan.hero.primaryText %></a>
+            <% if (!user) { %><a class="b2" href="/auth/discord"><i class="bi bi-discord me-2"></i>Войти через Discord</a><% } %>
+        </div>
+    </div>
+</header>
+
+<% if (hasAbout) { %>
+<section class="sec" id="about"><div class="wrap">
+    <div class="head"><h2><%= clan.about.title %></h2></div>
+    <div class="about"><%= clan.about.text %></div>
+</div></section>
+<% } %>
+
+<% if (hasHist) { %>
+<section class="sec" id="history"><div class="wrap">
+    <div class="head"><h2><%= sec.history.title %></h2><% if (sec.history.intro) { %><p class="intro"><%= sec.history.intro %></p><% } %></div>
+    <div class="tl">
+        <% let last = null; clan.history.forEach(h => { if (h.period && h.period !== last) { last = h.period; %>
+            <div class="period"><%= h.period %></div>
+        <% } %>
+        <article class="tl-item">
+            <% if (h.date) { %><div class="date"><%= h.date %></div><% } %>
+            <% if (h.title) { %><h3><%= h.title %></h3><% } %>
+            <% if (h.text) { %><div class="tx"><%= h.text %></div><% } %>
+            <% if (h.image) { %><img class="al-<%= h.imageAlign %>" style="width:<%= h.imageWidth %>%" data-zoom loading="lazy" src="<%= h.image %>" alt=""><% } %>
+        </article>
+        <% }); %>
+    </div>
+</div></section>
+<% } %>
+
+<% if (hasLead) { %>
+<section class="sec" id="leaders"><div class="wrap">
+    <div class="head"><h2><%= sec.leaders.title %></h2><% if (sec.leaders.intro) { %><p class="intro"><%= sec.leaders.intro %></p><% } %></div>
+    <div class="leaders <%= clan.leaders.length === 3 ? 'three' : '' %>">
+        <% clan.leaders.forEach(p => { %>
+        <article class="leader">
+            <div class="ph">
+                <% if (p.img) { %><img class="photo" loading="lazy" src="<%= p.img %>" alt="<%= p.name %>">
+                <% } else { %><div class="none"><img src="/img/logo.png" alt=""></div><% } %>
+            </div>
+            <div class="info">
+                <% if (p.role) { %><span class="role"><%= p.role %></span><% } %>
+                <h3><%= p.name %></h3>
+                <% if (p.bio) { %><p class="bio"><%= p.bio %></p><% } %>
+            </div>
+        </article>
+        <% }); %>
+    </div>
+</div></section>
+<% } %>
+
+<% if (hasStaff) { %>
+<section class="sec" id="staff"><div class="wrap">
+    <div class="head"><h2><%= sec.staff.title %></h2><% if (sec.staff.intro) { %><p class="intro"><%= sec.staff.intro %></p><% } %></div>
+    <div class="staff">
+        <% clan.staff.forEach(p => { %>
+        <article class="st">
+            <img class="av" loading="lazy" src="<%= p.img || '/img/logo.png' %>" alt="">
+            <div>
+                <h4><%= p.name %></h4>
+                <% if (p.role) { %><span class="role"><%= p.role %></span><% } %>
+                <% if (p.bio) { %><p class="bio"><%= p.bio %></p><% } %>
+            </div>
+        </article>
+        <% }); %>
+    </div>
+</div></section>
+<% } %>
+
+<% if (hasMem) { %>
+<section class="sec" id="members"><div class="wrap">
+    <div class="head"><h2><%= sec.members.title %></h2><% if (sec.members.intro) { %><p class="intro"><%= sec.members.intro %></p><% } %></div>
+    <% if (clan.members.length) { %>
+        <div class="count">Участников: <%= clan.members.length %></div>
+        <div class="mem">
+            <% clan.members.forEach(m => { %><div class="m"><img loading="lazy" src="<%= m.avatar %>" alt=""><span><%= m.name %></span></div><% }); %>
+        </div>
+    <% } else { %><p class="intro">Пока никого.</p><% } %>
+</div></section>
+<% } %>
+
+<% if (hasGal) { %>
+<section class="sec" id="gallery"><div class="wrap">
+    <div class="head"><h2><%= sec.gallery.title %></h2><% if (sec.gallery.intro) { %><p class="intro"><%= sec.gallery.intro %></p><% } %></div>
+    <div class="gal">
+        <% clan.gallery.forEach(g => { %>
+        <figure><img data-zoom loading="lazy" src="<%= g.url %>" alt="<%= g.caption %>"><% if (g.caption) { %><figcaption><%= g.caption %></figcaption><% } %></figure>
+        <% }); %>
+    </div>
+</div></section>
+<% } %>
+
+<footer>© <%= new Date().getFullYear() %> <%= clan.hero.title %></footer>
+<div id="lb"><img alt=""></div>
+
+<script>
+(() => {
+    // лайтбокс
+    const lb = document.getElementById('lb'), lbi = lb.querySelector('img');
+    document.addEventListener('click', e => {
+        const t = e.target.closest('img[data-zoom]');
+        if (t) { lbi.src = t.src; lb.classList.add('on'); } else if (lb.classList.contains('on')) lb.classList.remove('on');
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') lb.classList.remove('on'); });
+
+    // фон
+    const sky = document.getElementById('sky'), warp = document.getElementById('warp');
+    const sctx = sky.getContext('2d'), wctx = warp.getContext('2d');
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let W, H, dpr, stars = [];
+    const gauss = () => (Math.random() + Math.random() + Math.random() - 1.5) / 1.5;
+
+    function drawSky() {
+        sctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        sctx.fillStyle = '#02030a'; sctx.fillRect(0, 0, W, H);
+        const ax = W * .12, ay = H, bx = W * .88, by = 0, dx = bx - ax, dy = by - ay, len = Math.hypot(dx, dy), nx = -dy / len, ny = dx / len;
+        for (let i = 0; i < 26; i++) {
+            const t = Math.random(), off = (Math.random() - .5) * W * .06, x = ax + dx * t + nx * off, y = ay + dy * t + ny * off, r = (.12 + Math.random() * .2) * Math.min(W, H) * 1.2;
+            const g = sctx.createRadialGradient(x, y, 0, x, y, r), a = .05 + Math.random() * .06;
+            g.addColorStop(0, `rgba(70,100,170,${a})`); g.addColorStop(1, 'rgba(70,100,170,0)');
+            sctx.fillStyle = g; sctx.fillRect(x - r, y - r, r * 2, r * 2);
+        }
+        for (let i = 0; i < 10; i++) {
+            const t = Math.random(), off = (Math.random() - .5) * W * .05, x = ax + dx * t + nx * off, y = ay + dy * t + ny * off, r = 40 + Math.random() * 120;
+            const g = sctx.createRadialGradient(x, y, 0, x, y, r);
+            g.addColorStop(0, 'rgba(2,3,10,.35)'); g.addColorStop(1, 'rgba(2,3,10,0)');
+            sctx.fillStyle = g; sctx.fillRect(x - r, y - r, r * 2, r * 2);
+        }
+        const count = Math.floor(W * H / 700);
+        for (let i = 0; i < count; i++) {
+            let x, y;
+            if (Math.random() < .55) { const t = Math.random(), off = gauss() * W * .07; x = ax + dx * t + nx * off; y = ay + dy * t + ny * off; }
+            else { x = Math.random() * W; y = Math.random() * H; }
+            const b = Math.random(), r = b > .992 ? 1.7 : b > .95 ? 1.1 : .55, k = Math.random();
+            sctx.fillStyle = `rgba(${k > .85 ? '170,200,255' : k > .7 ? '255,235,210' : '255,255,255'},${.25 + b * .7})`;
+            sctx.beginPath(); sctx.arc(x, y, r, 0, 6.283); sctx.fill();
+        }
+    }
+
+    const COUNT = 420, SPEED = .0045;
+    function spawn(s, fresh) { s.x = (Math.random() - .5) * 2.2; s.y = (Math.random() - .5) * 2.2; s.z = fresh ? Math.random() : 1; s.pz = s.z; s.hue = Math.random() > .8 ? '175,205,255' : '255,255,255'; }
+    function frame() {
+        wctx.setTransform(dpr, 0, 0, dpr, 0, 0); wctx.clearRect(0, 0, W, H);
+        const cx = W / 2, cy = H / 2, f = Math.max(W, H) * .25;
+        for (const s of stars) {
+            s.pz = s.z; s.z -= SPEED * (.5 + (1 - s.z) * 2.2);
+            if (s.z <= .02) { spawn(s, false); continue; }
+            const x = cx + s.x / s.z * f, y = cy + s.y / s.z * f, px = cx + s.x / s.pz * f, py = cy + s.y / s.pz * f;
+            if (x < -50 || x > W + 50 || y < -50 || y > H + 50) { spawn(s, false); continue; }
+            const near = 1 - s.z;
+            wctx.strokeStyle = `rgba(${s.hue},${Math.min(1, near * 1.6)})`; wctx.lineWidth = .4 + near * near * 3.2; wctx.lineCap = 'round';
+            wctx.beginPath(); wctx.moveTo(px, py); wctx.lineTo(x, y); wctx.stroke();
+        }
+        if (!reduce) requestAnimationFrame(frame);
+    }
+    function resize() { dpr = Math.min(devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight; for (const c of [sky, warp]) { c.width = W * dpr; c.height = H * dpr; } drawSky(); }
+    addEventListener('resize', resize);
+    resize(); stars = Array.from({ length: COUNT }, () => { const s = {}; spawn(s, true); return s; }); frame();
+})();
+</script>
+</body>
+</html>

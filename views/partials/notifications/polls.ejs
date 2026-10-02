@@ -1,0 +1,355 @@
+<style>
+    .pl-card {
+        background: #181920;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+        padding: 20px;
+    }
+    .pl-card .form-control, .pl-card .form-select {
+        background: #121318 !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        color: #fff !important;
+    }
+    .pl-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+    .pl-tab {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: #d1d5db;
+        border-radius: 10px;
+        padding: 8px 16px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    .pl-tab.active {
+        background: var(--accent-color);
+        border-color: var(--accent-color);
+        color: #fff;
+    }
+    .pl-pane { display: none; }
+    .pl-pane.active { display: block; }
+    .pl-filter.active { background: var(--accent-color); border-color: var(--accent-color); color: #fff; }
+
+    /* Предпросмотр опроса в стиле Discord */
+    .pl-discord { background: #313338; border-radius: 8px; padding: 16px; color: #dbdee1; }
+    .pl-poll {
+        background: #2b2d31;
+        border: 1px solid #3f4147;
+        border-radius: 8px;
+        padding: 14px;
+        max-width: 460px;
+    }
+    .pl-poll-q { font-weight: 700; color: #fff; font-size: 1rem; word-break: break-word; }
+    .pl-poll-hint { font-size: 0.75rem; color: #949ba4; margin: 2px 0 10px; }
+    .pl-poll-ans {
+        display: flex; align-items: center; gap: 10px;
+        background: #1e1f22; border: 1px solid #3f4147; border-radius: 6px;
+        padding: 9px 12px; margin-bottom: 6px; font-size: 0.9rem; word-break: break-word;
+    }
+    .pl-radio { width: 18px; height: 18px; border: 2px solid #80848e; border-radius: 50%; flex-shrink: 0; }
+    .pl-radio.multi { border-radius: 4px; }
+    .pl-poll-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 10px; font-size: 0.78rem; color: #949ba4; }
+    .pl-vote-btn { background: #4e5058; color: #949ba4; border-radius: 4px; padding: 5px 14px; font-weight: 600; font-size: 0.8rem; }
+    .pl-ping { background: rgba(88,101,242,0.3); color: #c9cdfb; border-radius: 3px; padding: 0 2px; }
+
+    .pl-item {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 10px;
+        padding: 12px 14px;
+    }
+    .pl-sug-opts { margin: 6px 0 0; padding-left: 0; list-style: none; font-size: 0.85rem; }
+    .pl-sug-opts li { background: rgba(255,255,255,0.05); border-radius: 6px; padding: 3px 10px; margin-bottom: 3px; }
+    .pl-modal .modal-content { background: #181920; border: 1px solid rgba(255,255,255,0.1); color: #fff; }
+    .pl-modal .modal-header, .pl-modal .modal-footer { border-color: rgba(255,255,255,0.08); }
+    .pl-modal .form-control, .pl-modal .form-select {
+        background: #121318 !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #fff !important;
+    }
+</style>
+
+<div class="container-fluid py-4" id="pollsPage" data-guild-id="<%= guildId %>">
+    <div class="mb-3">
+        <h3 class="fw-bold text-white mb-1"><i class="bi bi-bar-chart-steps text-accent me-2"></i>Опросы</h3>
+        <p class="text-muted small mb-0">Встроенные опросы Discord: создавайте их на сайте или принимайте предложения от участников.</p>
+    </div>
+
+    <div id="plAlert" class="alert py-2 small mb-3" style="display:none;"></div>
+
+    <div class="pl-tabs">
+        <button type="button" class="pl-tab active" data-tab="builder"><i class="bi bi-pencil-square me-1"></i>Конструктор</button>
+        <button type="button" class="pl-tab" data-tab="suggestions"><i class="bi bi-inbox me-1"></i>Предложения <span class="badge bg-danger ms-1" id="plPendingBadge" style="display:none;">0</span></button>
+        <button type="button" class="pl-tab" data-tab="settings"><i class="bi bi-sliders me-1"></i>Настройки</button>
+    </div>
+
+    <!-- ================= КОНСТРУКТОР ================= -->
+    <div class="pl-pane active" id="plPane_builder">
+        <div class="row g-4">
+            <div class="col-xl-6">
+                <div class="d-flex flex-column gap-4">
+                    <div class="pl-card">
+                        <div class="d-flex gap-2 mb-3">
+                            <select class="form-select" id="plTemplateSelect"><option value="">-- Загрузить шаблон --</option></select>
+                            <button class="btn btn-outline-danger" id="plDeleteTemplateBtn" title="Удалить шаблон"><i class="bi bi-trash-fill"></i></button>
+                        </div>
+
+                        <label class="form-label text-muted small d-flex justify-content-between" for="plQuestion">
+                            <span>Вопрос</span><span id="plQuestionCount">0/300</span>
+                        </label>
+                        <textarea class="form-control mb-3" id="plQuestion" rows="2" maxlength="300" placeholder="Например: Во что сыграем в выходные?"></textarea>
+
+                        <label class="form-label text-muted small d-flex justify-content-between">
+                            <span>Варианты ответа</span><span id="plOptionsCount">2/10</span>
+                        </label>
+                        <div id="plOptions"></div>
+                        <button type="button" class="btn btn-sm btn-outline-light mb-3" id="plAddOptionBtn"><i class="bi bi-plus-lg me-1"></i>Добавить вариант</button>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small" for="plChannel">Канал</label>
+                                <select class="form-select" id="plChannel"><option value="">Загрузка...</option></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small" for="plPingRole">Упомянуть при отправке</label>
+                                <select class="form-select" id="plPingRole"><option value="">Не упоминать</option></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted small" for="plDuration">Длительность (часов, 1–168)</label>
+                                <input type="number" class="form-control" id="plDuration" min="1" max="168" value="24">
+                                <div class="d-flex gap-1 flex-wrap mt-2">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary pl-preset" data-h="1">1 ч</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary pl-preset" data-h="6">6 ч</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary pl-preset" data-h="24">1 д</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary pl-preset" data-h="72">3 д</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary pl-preset" data-h="168">7 д</button>
+                                </div>
+                            </div>
+                            <div class="col-md-6 d-flex align-items-start pt-md-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="plMulti">
+                                    <label class="form-check-label text-white" for="plMulti">Можно выбрать несколько ответов</label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label text-muted small" for="plScheduleTime"><i class="bi bi-alarm me-1"></i>Отправить позже (необязательно)</label>
+                                <input type="datetime-local" class="form-control" id="plScheduleTime">
+                                <div class="text-muted small mt-1">Время в вашем часовом поясе. Работает, даже если бот перезапустится (если он включён в это время).</div>
+                            </div>
+                        </div>
+
+                        <div class="row g-2 mt-3">
+                            <div class="col-sm-4"><button class="btn btn-accent text-white w-100 fw-semibold" id="plSendBtn"><i class="bi bi-send-fill me-1"></i>Отправить</button></div>
+                            <div class="col-sm-4"><button class="btn btn-outline-light w-100" id="plScheduleBtn"><i class="bi bi-alarm-fill me-1"></i>Запланировать</button></div>
+                            <div class="col-sm-4"><button class="btn btn-outline-info w-100" id="plSaveTemplateBtn"><i class="bi bi-floppy-fill me-1"></i>В шаблон</button></div>
+                        </div>
+                        <div class="text-muted small mt-2">Опрос Discord нельзя изменить после отправки, поэтому проверьте предпросмотр справа.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-6">
+                <div class="pl-card mb-4" style="position: sticky; top: 16px;">
+                    <h5 class="fw-bold text-white mb-3"><i class="bi bi-eye me-2"></i>Предпросмотр</h5>
+                    <div class="pl-discord" id="plPreview"></div>
+                </div>
+
+                <div class="pl-card mb-4">
+                    <h5 class="fw-bold text-white mb-3"><i class="bi bi-calendar-event me-2"></i>Запланированные</h5>
+                    <div id="plScheduledList" class="d-flex flex-column gap-2"><div class="text-muted small">Загрузка...</div></div>
+                </div>
+
+                <div class="pl-card">
+                    <h5 class="fw-bold text-white mb-3"><i class="bi bi-clock-history me-2"></i>Недавно отправленные</h5>
+                    <div id="plHistoryList" class="d-flex flex-column gap-2"><div class="text-muted small">Загрузка...</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= ПРЕДЛОЖЕНИЯ ================= -->
+    <div class="pl-pane" id="plPane_suggestions">
+        <div class="d-flex gap-2 flex-wrap mb-3" id="plFilters">
+            <button class="btn btn-sm btn-outline-light pl-filter active" data-filter="all">Все <span class="badge bg-secondary" id="plCntAll">0</span></button>
+            <button class="btn btn-sm btn-outline-light pl-filter" data-filter="pending">Ожидают <span class="badge bg-warning text-dark" id="plCntPending">0</span></button>
+            <button class="btn btn-sm btn-outline-light pl-filter" data-filter="approved">Одобрены <span class="badge bg-success" id="plCntApproved">0</span></button>
+            <button class="btn btn-sm btn-outline-light pl-filter" data-filter="rejected">Отклонены <span class="badge bg-danger" id="plCntRejected">0</span></button>
+        </div>
+        <div id="plSuggestions" class="d-flex flex-column gap-3"></div>
+        <p class="text-muted text-center py-5 mb-0" id="plSuggestionsEmpty" style="display:none;">Предложений пока нет.</p>
+    </div>
+
+    <!-- ================= НАСТРОЙКИ ================= -->
+    <div class="pl-pane" id="plPane_settings">
+        <div class="row g-4">
+            <div class="col-xl-6">
+                <div class="pl-card mb-4">
+                    <h5 class="fw-bold text-white mb-3"><i class="bi bi-people me-2"></i>Предложения от участников</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small" for="plSugChannel">Канал с кнопкой «Предложить опрос»</label>
+                            <select class="form-select" id="plSugChannel"></select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small" for="plReviewChannel">Канал проверки (для модераторов)</label>
+                            <select class="form-select" id="plReviewChannel"></select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small" for="plPublishChannel">Канал публикации по умолчанию</label>
+                            <select class="form-select" id="plPublishChannel"></select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small" for="plApproverRole">Кто может одобрять</label>
+                            <select class="form-select" id="plApproverRole"></select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small" for="plCooldown">Кулдаун между предложениями (часов, 1–24)</label>
+                            <input type="number" class="form-control" id="plCooldown" min="1" max="24" value="24">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small" for="plDefDuration">Длительность одобренных (часов)</label>
+                            <input type="number" class="form-control" id="plDefDuration" min="1" max="168" value="24">
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="plDefMulti">
+                                <label class="form-check-label text-white" for="plDefMulti">Одобренные опросы: разрешить несколько ответов</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pl-card">
+                    <h5 class="fw-bold text-white mb-3"><i class="bi bi-window me-2"></i>Сообщение с кнопкой</h5>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label text-muted small" for="plFormTitle">Заголовок</label>
+                            <input type="text" class="form-control" id="plFormTitle" maxlength="256">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-muted small" for="plFormDesc">Описание</label>
+                            <textarea class="form-control" id="plFormDesc" rows="3" maxlength="2000"></textarea>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label text-muted small" for="plFormBtn">Текст кнопки</label>
+                            <input type="text" class="form-control" id="plFormBtn" maxlength="80">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted small" for="plFormColor">Цвет</label>
+                            <input type="color" class="form-control form-control-color w-100" id="plFormColor" value="#8b5cf6">
+                        </div>
+                        <div class="col-12">
+                            <div class="pl-discord">
+                                <div style="background:#2b2d31; border-left:4px solid #8b5cf6; border-radius:4px; padding:10px 14px;" id="plFormPreviewBox">
+                                    <div class="fw-bold text-white" id="plFormPreviewTitle"></div>
+                                    <div class="small mb-2" id="plFormPreviewDesc" style="white-space:pre-wrap;"></div>
+                                    <span class="pl-vote-btn" style="background:#5865f2; color:#fff; display:inline-block;" id="plFormPreviewBtn"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="small text-muted" id="plFormStatus"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-6">
+                <div class="pl-card">
+                    <h5 class="fw-bold text-white mb-3"><i class="bi bi-chat-dots me-2"></i>Личные сообщения автору</h5>
+                    <p class="text-muted small">Подстановки: <code>{question}</code> — вопрос опроса, <code>{reason}</code> — причина (только для отклонения; сама добавит «Причина: …», если она указана).</p>
+
+                    <div class="mb-4">
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" role="switch" id="plDmSubmitOn">
+                            <label class="form-check-label text-white" for="plDmSubmitOn">📨 Предложение принято на рассмотрение</label>
+                        </div>
+                        <textarea class="form-control" id="plDmSubmitText" rows="2" maxlength="1000"></textarea>
+                    </div>
+                    <div class="mb-4">
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" role="switch" id="plDmApproveOn">
+                            <label class="form-check-label text-white" for="plDmApproveOn">✅ Опрос одобрен</label>
+                        </div>
+                        <textarea class="form-control" id="plDmApproveText" rows="2" maxlength="1000"></textarea>
+                    </div>
+                    <div class="mb-2">
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" role="switch" id="plDmRejectOn">
+                            <label class="form-check-label text-white" for="plDmRejectOn">❌ Опрос отклонён</label>
+                        </div>
+                        <textarea class="form-control" id="plDmRejectText" rows="2" maxlength="1000"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 d-flex gap-2 flex-wrap">
+                <button class="btn btn-accent text-white fw-semibold" id="plSaveSettingsBtn"><i class="bi bi-save-fill me-1"></i>Сохранить настройки</button>
+                <button class="btn btn-outline-light" id="plPublishFormBtn"><i class="bi bi-send-fill me-1"></i>Опубликовать / обновить форму в Discord</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Одобрить -->
+<div class="modal fade pl-modal" id="plApproveModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Одобрить опрос</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="fw-semibold mb-3" id="plApproveQuestion"></div>
+                <label class="form-label text-muted small" for="plApproveChannel">Куда опубликовать</label>
+                <select class="form-select" id="plApproveChannel"></select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-success" id="plApproveConfirm"><i class="bi bi-check-lg me-1"></i>Одобрить и опубликовать</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Отклонить -->
+<div class="modal fade pl-modal" id="plRejectModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Отклонить опрос</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="fw-semibold mb-3" id="plRejectQuestion"></div>
+                <label class="form-label text-muted small" for="plRejectReason">Причина (необязательно)</label>
+                <textarea class="form-control" id="plRejectReason" rows="3" maxlength="500" placeholder="Автор увидит её в личном сообщении"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-danger" id="plRejectConfirm"><i class="bi bi-x-lg me-1"></i>Отклонить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Редактировать -->
+<div class="modal fade pl-modal" id="plEditModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Редактировать предложение</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <label class="form-label text-muted small" for="plEditQuestion">Вопрос</label>
+                <textarea class="form-control mb-3" id="plEditQuestion" rows="2" maxlength="300"></textarea>
+                <label class="form-label text-muted small" for="plEditOptions">Варианты (каждый с новой строки, 2–10)</label>
+                <textarea class="form-control" id="plEditOptions" rows="6"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-accent text-white" id="plEditConfirm"><i class="bi bi-save me-1"></i>Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/pollsPage.js"></script>

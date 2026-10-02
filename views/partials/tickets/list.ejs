@@ -1,0 +1,72 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-white mb-1"><i class="bi bi-inboxes-fill text-accent me-2"></i>Просмотр тикетов</h3>
+        <p class="text-muted small mb-0">Управление всеми обращениями пользователей в реальном времени</p>
+    </div>
+    <div class="d-flex gap-2">
+        <input type="text" id="ticketSearchInput" class="form-control form-control-dark" placeholder="Поиск по нику или #..." onkeyup="filterTickets()">
+        <select id="ticketStatusFilter" class="form-select form-control-dark w-auto" onchange="filterTickets()">
+            <option value="all">Все статусы</option>
+            <option value="open">Открытые</option>
+            <option value="closed">Закрытые</option>
+        </select>
+    </div>
+</div>
+
+<div class="glass-card overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0 custom-table">
+            <thead>
+                <tr>
+                    <th class="ps-4">№ Тикета</th>
+                    <th>Пользователь</th>
+                    <th>Тема / Панель</th>
+                    <th>Статус</th>
+                    <th>Дата создания</th>
+                    <th class="text-end pe-4">Действия</th>
+                </tr>
+            </thead>
+            <tbody id="ticketsTableBody">
+                <% const ticketsList = (typeof tickets !== 'undefined' && tickets) ? tickets : (locals.tickets || []); %>
+                <% if (ticketsList.length > 0) { %>
+                    <% ticketsList.forEach(ticket => { %>
+                        <tr class="ticket-row" data-status="<%= ticket.status %>" data-search="<%= ticket.username %> #<%= ticket.ticket_number %>">
+                            <td class="ps-4 fw-bold text-accent">#<%= ticket.ticket_number %></td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="<%= ticket.user_avatar || 'https://cdn.discordapp.com/embed/avatars/0.png' %>" class="rounded-circle" width="32" height="32">
+                                    <span class="fw-semibold text-white"><%= ticket.username %></span>
+                                </div>
+                            </td>
+                            <td><span class="text-muted"><%= ticket.subject %></span></td>
+                            <td>
+                                <% if (ticket.status === 'open') { %>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-1">Открыт</span>
+                                <% } else { %>
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-1">Закрыт</span>
+                                <% } %>
+                            </td>
+                            <td class="text-muted small"><%= new Date(ticket.created_at).toLocaleString('ru-RU') %></td>
+                            <td class="text-end pe-4">
+                                <% if (ticket.transcript_url) { %>
+                                    <a href="<%= ticket.transcript_url %>" target="_blank" class="btn btn-sm btn-outline-purple me-1" title="Транскрипт">
+                                        <i class="bi bi-file-earmark-text"></i>
+                                    </a>
+                                <% } %>
+                                <% if (ticket.status === 'open') { %>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="closeTicket('<%= ticket.id %>')">
+                                        <i class="bi bi-x-circle me-1"></i>Закрыть
+                                    </button>
+                                <% } %>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">Тикеты не найдены</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>

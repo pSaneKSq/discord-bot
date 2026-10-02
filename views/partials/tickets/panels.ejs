@@ -1,0 +1,55 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3 class="fw-bold text-white mb-1"><i class="bi bi-gear-fill text-accent me-2"></i>Настройки панелей</h3>
+        <p class="text-muted small mb-0">Управление и создание панелей вызова тикетов в Discord</p>
+    </div>
+    <button class="btn btn-accent px-4 py-2 text-white fw-semibold shadow-purple" data-bs-toggle="modal" data-bs-target="#createPanelModal">
+        <i class="bi bi-plus-lg me-2"></i>Создать панель
+    </button>
+</div>
+
+<!-- Список созданных панелей -->
+<div class="row g-4" id="panelsList">
+    <% const panelsList = (typeof panels !== 'undefined' && panels) ? panels : (locals.panels || []); %>
+    <% if (panelsList.length > 0) { %>
+        <% panelsList.forEach(panel => { %>
+            <div class="col-md-6 col-xl-4">
+                <div class="glass-card p-4 h-100 d-flex flex-column justify-content-between position-relative overflow-hidden">
+                    <div class="card-accent-line"></div>
+                    <div>
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5 class="fw-bold text-white mb-0"><%= panel.title %></h5>
+                            <span class="badge bg-purple-subtle text-purple border border-purple-subtle">ID: <%= panel.id %></span>
+                        </div>
+                        <p class="text-muted small text-truncate-2 mb-3"><%= panel.description || 'Без описания' %></p>
+                        <div class="p-3 bg-dark-subtle rounded-3 mb-3 border border-secondary-subtle">
+                            <div class="d-flex align-items-center mb-2 small text-muted">
+                                <i class="bi bi-hash me-2 text-accent"></i>Канал: <span class="text-white ms-1">#<%= panel.channel_name || panel.channel_id %></span>
+                            </div>
+                            <div class="d-flex align-items-center small text-muted">
+                                <i class="bi bi-shield-lock me-2 text-accent"></i>Роль: <span class="text-white ms-1"><%= panel.role_name || panel.support_role_id %></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-purple btn-sm w-100" onclick="sendPanelToDiscord('<%= panel.id %>')">
+                            <i class="bi bi-send me-1"></i>Отправить в Discord
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm" onclick="deletePanel('<%= panel.id %>')">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+    <% } else { %>
+        <div class="col-12 text-center py-5 glass-card">
+            <i class="bi bi-layers text-muted display-4 d-block mb-3"></i>
+            <h5 class="text-white fw-bold">Панелей пока нет</h5>
+            <p class="text-muted small mb-3">Создайте первую панель тикетов, чтобы пользователи могли обращаться в поддержку</p>
+            <button class="btn btn-accent px-4 py-2 text-white fw-semibold" data-bs-toggle="modal" data-bs-target="#createPanelModal">
+                <i class="bi bi-plus-lg me-2"></i>Создать панель
+            </button>
+        </div>
+    <% } %>
+</div>

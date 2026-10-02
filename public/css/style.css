@@ -1,0 +1,255 @@
+:root {
+    --bs-body-bg: #090a10;
+    --accent-color: #8b5cf6;
+    --accent-hover: #7c3aed;
+    --glass-bg: rgba(18, 22, 34, 0.45);
+    --glass-border: rgba(139, 92, 246, 0.25);
+}
+
+body {
+    background-color: var(--bs-body-bg);
+    color: #f3f4f6;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* --- ЧИТАЕМОСТЬ ТЕКСТА И МЕТОК --- */
+label, 
+.form-label, 
+.text-muted, 
+p, 
+span {
+    color: #f3f4f6 !important;
+    font-weight: 500;
+}
+
+/* Заголовки категорий в сайдбаре: осветлённый акцентный цвет
+   (первая строка — запасной вариант для старых браузеров без color-mix) */
+.text-uppercase.text-muted {
+    color: #a855f7 !important;
+    color: color-mix(in srgb, var(--accent-color) 70%, white) !important;
+    font-weight: 700;
+}
+
+/* --- ПОЛЯ ВВОДА И ТЕКСТОВЫЕ ОБЛАСТИ --- */
+.form-control, .form-select {
+    background-color: rgba(15, 23, 42, 0.65) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+}
+
+.form-control::placeholder {
+    color: #9ca3af !important;
+    opacity: 1;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: rgba(15, 23, 42, 0.85) !important;
+    border-color: var(--accent-color) !important;
+    color: #fff !important;
+    box-shadow: 0 0 0 0.25rem rgba(139, 92, 246, 0.25) !important;
+    box-shadow: 0 0 0 0.25rem color-mix(in srgb, var(--accent-color) 25%, transparent) !important;
+}
+
+/* ======================================================= */
+/* --- КОСМИЧЕСКИЙ ФОН: туманность, слои звёзд, кометы --- */
+/* ======================================================= */
+
+.space-bg {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    overflow: hidden;
+    background: radial-gradient(ellipse at bottom, #131522 0%, #090a10 70%);
+}
+
+/* Медленно "дышащая" туманность */
+.nebula {
+    position: absolute;
+    inset: -20%;
+    background:
+        radial-gradient(circle at 20% 30%, rgba(139, 92, 246, 0.16), transparent 40%),
+        radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.10), transparent 45%),
+        radial-gradient(circle at 60% 80%, rgba(168, 85, 247, 0.12), transparent 40%);
+    filter: blur(40px);
+    animation: nebulaDrift 40s ease-in-out infinite alternate;
+}
+
+@keyframes nebulaDrift {
+    0%   { transform: translate(0, 0) scale(1); }
+    50%  { transform: translate(-2%, 2%) scale(1.05); }
+    100% { transform: translate(2%, -2%) scale(1); }
+}
+
+/* Три слоя звёзд — эффект глубины (параллакс без JS) */
+.stars, .stars-mid, .stars-far {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-repeat: repeat;
+}
+
+.stars {
+    background-image:
+        radial-gradient(2px 2px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 40px 70px, #a855f7, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 90px 40px, #ffffff, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 160px 120px, #e5e7eb, rgba(0,0,0,0)),
+        radial-gradient(1.5px 1.5px at 230px 190px, #ffffff, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 310px 80px, #8b5cf6, rgba(0,0,0,0));
+    background-size: 350px 350px;
+    animation: twinkleStars 4s ease-in-out infinite alternate;
+}
+
+.stars-mid {
+    background-image:
+        radial-gradient(1px 1px at 50px 50px, rgba(255,255,255,0.8), rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 150px 90px, rgba(255,255,255,0.6), rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 250px 160px, rgba(168,85,247,0.7), rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 320px 40px, rgba(255,255,255,0.5), rgba(0,0,0,0));
+    background-size: 400px 400px;
+    opacity: 0.6;
+    animation: twinkleStars 6s ease-in-out infinite alternate-reverse;
+}
+
+.stars-far {
+    background-image:
+        radial-gradient(1px 1px at 80px 100px, rgba(255,255,255,0.35), rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 200px 20px, rgba(255,255,255,0.3), rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 300px 200px, rgba(255,255,255,0.3), rgba(0,0,0,0));
+    background-size: 500px 500px;
+    opacity: 0.4;
+    animation: twinkleStars 8s ease-in-out infinite alternate;
+}
+
+@keyframes twinkleStars {
+    0% { opacity: 0.3; }
+    50% { opacity: 0.9; }
+    100% { opacity: 0.35; }
+}
+
+/* Гладкая комета без "лесенки" */
+.comet {
+    position: absolute;
+    width: 180px;
+    height: 2px;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(139, 92, 246, 0.5) 50%, #ffffff 100%);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 6px #a855f7);
+    opacity: 0;
+    pointer-events: none;
+    animation: shootingComet 7s infinite ease-in-out;
+}
+
+.comet::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: -1.5px;
+    width: 5px;
+    height: 5px;
+    background: #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 0 10px 2px #ffffff, 0 0 18px 4px #a855f7;
+}
+
+.comet-1 { top: -5%;  left: 10%; animation-delay: 0s;   animation-duration: 6s; }
+.comet-2 { top: 15%;  left: -5%; animation-delay: 2.3s; animation-duration: 8s; }
+.comet-3 { top: -10%; left: 35%; animation-delay: 4.6s; animation-duration: 7s; }
+.comet-4 { top: -8%;  left: 60%; animation-delay: 6.2s; animation-duration: 9s; width: 130px; }
+.comet-5 { top: 20%;  left: 75%; animation-delay: 3.4s; animation-duration: 6.5s; width: 220px; }
+
+@keyframes shootingComet {
+    0% {
+        transform: rotate(45deg) translateX(0);
+        opacity: 0;
+    }
+    8% {
+        opacity: 1;
+    }
+    30% {
+        transform: rotate(45deg) translateX(120vh);
+        opacity: 0;
+    }
+    100% {
+        transform: rotate(45deg) translateX(120vh);
+        opacity: 0;
+    }
+}
+
+/* Уважаем настройку "уменьшить анимацию" в системе пользователя */
+@media (prefers-reduced-motion: reduce) {
+    .nebula, .stars, .stars-mid, .stars-far, .comet {
+        animation: none !important;
+    }
+}
+
+/* --- СЛЕКЛЯННЫЙ ИНТЕРФЕЙС И SIDEBAR --- */
+.sidebar {
+    width: 270px;
+    background: rgba(13, 16, 25, 0.85);
+    backdrop-filter: blur(16px);
+    z-index: 10;
+}
+
+#v-pills-embed, 
+#v-pills-embed .card {
+    background: transparent !important;
+}
+
+.glass-card {
+    background: var(--glass-bg) !important;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(139, 92, 246, 0.25);
+    border: 1px solid color-mix(in srgb, var(--accent-color) 25%, transparent);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.nav-link {
+    color: #d1d5db !important;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+    color: #fff !important;
+    background-color: rgba(139, 92, 246, 0.2);
+    background-color: color-mix(in srgb, var(--accent-color) 20%, transparent);
+}
+
+/* Активный пункт меню: градиент от акцентного цвета к его тёмному оттенку.
+   Первая строка background — запасной вариант для старых браузеров без color-mix. */
+.nav-link.active {
+    background: var(--accent-color) !important;
+    background: linear-gradient(135deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color) 65%, black) 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-color) 35%, transparent);
+}
+
+/* Подсветка вопросов в редакторе формы при наведении.
+   Селектор с #id нужен, чтобы перебить старое правило прямо в editForm.ejs. */
+#embedBuilderContainer .question-row:hover {
+    border-color: rgba(139, 92, 246, 0.4) !important;
+    border-color: color-mix(in srgb, var(--accent-color) 40%, transparent) !important;
+}
+
+/* Контейнер предпросмотра Discord */
+.discord-preview-container {
+    background-color: rgba(43, 45, 49, 0.75) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.discord-embed {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}

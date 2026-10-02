@@ -1,0 +1,419 @@
+<style>
+    .lvl-card {
+        background: #181920;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+        padding: 20px;
+    }
+    .lvl-card .form-control, .lvl-card .form-select {
+        background: #121318 !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        color: #fff !important;
+    }
+    .lvl-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+    .lvl-tab {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: #d1d5db;
+        border-radius: 10px;
+        padding: 8px 16px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    .lvl-tab.active {
+        background: var(--accent-color);
+        border-color: var(--accent-color);
+        color: #fff;
+    }
+    .lvl-pane { display: none; }
+    .lvl-pane.active { display: block; }
+
+    /* Лидерборд */
+    .lvl-leaderboard-item {
+        background: #1e1f22;
+        border: 1px solid #3f4147;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .lvl-rank {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--accent-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+    }
+    .lvl-rank.gold { background: #FFD700; }
+    .lvl-rank.silver { background: #C0C0C0; }
+    .lvl-rank.bronze { background: #CD7F32; }
+    .lvl-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+    .lvl-info { flex: 1; }
+    .lvl-username { color: #fff; font-weight: 600; font-size: 0.95rem; }
+    .lvl-stats { color: #949ba4; font-size: 0.85rem; }
+    .lvl-xp-badge {
+        background: var(--accent-color);
+        color: #fff;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    /* Прогресс-бар до следующего уровня */
+    .lvl-progress-container {
+        width: 100%;
+        margin-top: 8px;
+    }
+    .lvl-progress-bar {
+        height: 6px;
+        background: #2b2d31;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+    .lvl-progress-fill {
+        height: 100%;
+        background: var(--accent-color);
+        border-radius: 3px;
+        transition: width 0.3s ease;
+    }
+    .lvl-progress-text {
+        color: #949ba4;
+        font-size: 0.75rem;
+        margin-top: 4px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    /* Награды */
+    .lvl-reward-item {
+        background: #1e1f22;
+        border: 1px solid #3f4147;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .lvl-level-badge {
+        background: var(--accent-color);
+        color: #fff;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 1rem;
+        min-width: 60px;
+        text-align: center;
+    }
+    .lvl-role-badge {
+        background: #4e5058;
+        color: #fff;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+    }
+    .lvl-remove-reward {
+        background: #da373c;
+        border: none;
+        color: #fff;
+        border-radius: 6px;
+        padding: 6px 10px;
+        cursor: pointer;
+        font-size: 0.85rem;
+    }
+    .lvl-remove-reward:hover { background: #a1282c; }
+
+    /* Списки исключений */
+    .lvl-exclusion-list {
+        background: #1e1f22;
+        border: 1px solid #3f4147;
+        border-radius: 8px;
+        padding: 12px;
+        min-height: 100px;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    .lvl-exclusion-item {
+        background: #2b2d31;
+        border: 1px solid #3f4147;
+        border-radius: 6px;
+        padding: 8px 12px;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+    .lvl-exclusion-name {
+        color: #fff;
+        font-size: 0.9rem;
+        flex: 1;
+    }
+    .lvl-exclusion-remove {
+        background: #da373c;
+        border: none;
+        color: #fff;
+        border-radius: 4px;
+        padding: 4px 8px;
+        cursor: pointer;
+        font-size: 0.8rem;
+    }
+    .lvl-exclusion-remove:hover { background: #a1282c; }
+    .lvl-add-exclusion {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+    .lvl-add-exclusion select {
+        flex: 1;
+    }
+
+    /* Статистика */
+    .lvl-stat-card {
+        background: #1e1f22;
+        border: 1px solid #3f4147;
+        border-radius: 8px;
+        padding: 16px;
+        text-align: center;
+    }
+    .lvl-stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--accent-color);
+    }
+    .lvl-stat-label {
+        color: #949ba4;
+        font-size: 0.85rem;
+        margin-top: 4px;
+    }
+</style>
+
+<div class="container-fluid py-4" id="levelsPage" data-guild-id="<%= guildId %>">
+    <div class="mb-4">
+        <h3 class="fw-bold text-white mb-1"><i class="bi bi-trophy text-accent me-2"></i>Система уровней и XP</h3>
+        <p class="text-muted small mb-0">Награждайте активных участников, выдавайте роли за достижения и создайте соревновательный дух</p>
+    </div>
+
+    <div class="lvl-tabs">
+        <div class="lvl-tab active" data-tab="settings">⚙️ Настройки</div>
+        <div class="lvl-tab" data-tab="rewards">🎁 Награды</div>
+        <div class="lvl-tab" data-tab="leaderboard">🏆 Лидерборд</div>
+        <div class="lvl-tab" data-tab="stats">📊 Статистика</div>
+    </div>
+
+    <!-- Вкладка настроек -->
+    <div class="lvl-pane active" id="lvl-pane-settings">
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="lvl-card">
+                    <h5 class="text-white mb-3">Основные настройки</h5>
+
+                    <div class="alert alert-info d-flex align-items-center gap-2 mb-3" style="background: rgba(88, 101, 242, 0.1); border-color: rgba(88, 101, 242, 0.3);">
+                        <i class="bi bi-info-circle"></i>
+                        <div class="small">
+                            <strong>Формула уровней:</strong> 5 × уровень² + 50 × уровень + 100<br>
+                            Уровень 0: 0 XP, Уровень 1: 155 XP, Уровень 2: 220 XP
+                        </div>
+                    </div>
+
+                    <div class="form-check form-switch d-flex align-items-center justify-content-between mb-3">
+                        <label class="form-check-label text-white" for="lvl-enabled">Включить систему уровней</label>
+                        <input class="form-check-input" type="checkbox" role="switch" id="lvl-enabled">
+                    </div>
+
+                    <label class="form-label text-muted small">XP за сообщение (минимум)</label>
+                    <input type="number" id="lvl-xp-min" class="form-control mb-3" min="1" max="100" value="15">
+
+                    <label class="form-label text-muted small">XP за сообщение (максимум)</label>
+                    <input type="number" id="lvl-xp-max" class="form-control mb-3" min="1" max="100" value="25">
+
+                    <label class="form-label text-muted small">Кулдаун между XP (секунды)</label>
+                    <input type="number" id="lvl-cooldown" class="form-control mb-3" min="10" max="300" value="60">
+
+                    <button type="button" class="btn btn-accent text-white" id="lvl-save-settings">
+                        <i class="bi bi-save me-1"></i>Сохранить настройки
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="lvl-card">
+                    <h5 class="text-white mb-3">Уведомления о левел-апах</h5>
+                    
+                    <label class="form-label text-muted small">Куда отправлять уведомления</label>
+                    <select id="lvl-mode" class="form-select mb-3">
+                        <option value="current">В текущий канал</option>
+                        <option value="dm">В личные сообщения</option>
+                        <option value="channel">В специальный канал</option>
+                        <option value="disabled">Отключить уведомления</option>
+                    </select>
+                    
+                    <label class="form-label text-muted small">Канал для уведомлений</label>
+                    <select id="lvl-channel" class="form-select mb-3">
+                        <option value="">Выберите канал</option>
+                    </select>
+                    
+                    <label class="form-label text-muted small">Сообщение о левел-апе</label>
+                    <textarea id="lvl-message" class="form-control mb-3" rows="3" placeholder="🎉 Поздравляем {user} с достижением уровня {level}!"></textarea>
+                    
+                    <div class="text-muted small mb-3">
+                        Доступные переменные: {user}, {username}, {level}, {server}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="lvl-card">
+                    <h5 class="text-white mb-3">Исключения из начисления XP</h5>
+                    
+                    <label class="form-label text-muted small">Роли, которые не получают XP</label>
+                    <div class="lvl-add-exclusion mb-2">
+                        <select id="lvl-add-role-select" class="form-select">
+                            <option value="">Выберите роль для добавления</option>
+                        </select>
+                        <button type="button" class="btn btn-success" id="lvl-add-role-btn">
+                            <i class="bi bi-plus-lg"></i>
+                        </button>
+                    </div>
+                    <div id="lvl-no-xp-roles-list" class="lvl-exclusion-list mb-3">
+                        <div class="text-center text-muted py-2">Нет исключенных ролей</div>
+                    </div>
+                    
+                    <label class="form-label text-muted small">Каналы, где не начисляется XP</label>
+                    <div class="lvl-add-exclusion mb-2">
+                        <select id="lvl-add-channel-select" class="form-select">
+                            <option value="">Выберите канал для добавления</option>
+                        </select>
+                        <button type="button" class="btn btn-success" id="lvl-add-channel-btn">
+                            <i class="bi bi-plus-lg"></i>
+                        </button>
+                    </div>
+                    <div id="lvl-no-xp-channels-list" class="lvl-exclusion-list">
+                        <div class="text-center text-muted py-2">Нет исключенных каналов</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Вкладка наград -->
+    <div class="lvl-pane" id="lvl-pane-rewards">
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="lvl-card">
+                    <h5 class="text-white mb-3">Добавить награду за уровень</h5>
+                    
+                    <label class="form-label text-muted small">Уровень</label>
+                    <input type="number" id="lvl-reward-level" class="form-control mb-3" min="1" max="100" placeholder="Например: 5">
+                    
+                    <label class="form-label text-muted small">Роль</label>
+                    <select id="lvl-reward-role" class="form-select mb-3">
+                        <option value="">Выберите роль</option>
+                    </select>
+                    
+                    <div class="form-check form-switch d-flex align-items-center justify-content-between mb-3">
+                        <label class="form-check-label text-white" for="lvl-remove-previous">Удалять предыдущие награды</label>
+                        <input class="form-check-input" type="checkbox" role="switch" id="lvl-remove-previous">
+                    </div>
+
+                    <button type="button" class="btn btn-success w-100" id="lvl-add-reward">
+                        <i class="bi bi-plus-lg me-1"></i>Добавить награду
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="lvl-card">
+                    <h5 class="text-white mb-3">Существующие награды</h5>
+                    <div id="lvl-rewards-list">
+                        <div class="text-center text-muted py-3">Нет наград</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Вкладка лидерборда -->
+    <div class="lvl-pane" id="lvl-pane-leaderboard">
+        <div class="lvl-card">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h5 class="text-white mb-0">🏆 Топ участников по XP</h5>
+                <button type="button" class="btn btn-sm btn-outline-light" id="lvl-refresh-leaderboard">
+                    <i class="bi bi-arrow-clockwise"></i>
+                </button>
+            </div>
+            <div id="lvl-leaderboard-list">
+                <div class="text-center text-muted py-4">Загрузка лидерборда...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Вкладка статистики -->
+    <div class="lvl-pane" id="lvl-pane-stats">
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="lvl-stat-card">
+                    <div class="lvl-stat-value" id="lvl-stat-users">0</div>
+                    <div class="lvl-stat-label">Пользователей</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="lvl-stat-card">
+                    <div class="lvl-stat-value" id="lvl-stat-avg-level">0</div>
+                    <div class="lvl-stat-label">Средний уровень</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="lvl-stat-card">
+                    <div class="lvl-stat-value" id="lvl-stat-max-level">0</div>
+                    <div class="lvl-stat-label">Макс. уровень</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="lvl-stat-card">
+                    <div class="lvl-stat-value" id="lvl-stat-total-xp">0</div>
+                    <div class="lvl-stat-label">Всего XP</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lvl-card">
+            <h5 class="text-white mb-3">Управление XP</h5>
+            <div class="alert alert-warning" style="background: rgba(255, 193, 7, 0.1); border-color: rgba(255, 193, 7, 0.3);">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <strong>Внимание!</strong> Эти действия необратимы. Все данные XP будут удалены.
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <button type="button" class="btn btn-danger w-100" id="lvl-reset-all-xp">
+                        <i class="bi bi-trash me-1"></i>Сбросить XP всех пользователей
+                    </button>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="lvl-reset-user-id" placeholder="Discord ID пользователя">
+                        <button type="button" class="btn btn-outline-danger" id="lvl-reset-user-xp">
+                            <i class="bi bi-trash me-1"></i>Сбросить XP пользователя
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/levels.js"></script>

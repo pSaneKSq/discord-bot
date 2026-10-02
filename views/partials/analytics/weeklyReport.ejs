@@ -1,0 +1,207 @@
+<style>
+    .wr-card {
+        background: #181920;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+        padding: 20px;
+    }
+    .wr-card .form-control, .wr-card .form-select {
+        background: #121318 !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        color: #fff !important;
+    }
+    .wr-card input[type="color"] { padding: 2px; height: 38px; width: 60px; }
+
+    /* Предпросмотр в стиле Discord */
+    .wr-discord {
+        background: #313338;
+        border-radius: 8px;
+        padding: 16px;
+        color: #dbdee1;
+    }
+    .wr-discord-content { margin-bottom: 8px; white-space: pre-wrap; font-size: 0.95rem; }
+    .wr-embed {
+        background: #2b2d31;
+        border-left: 4px solid #8b5cf6;
+        border-radius: 4px;
+        padding: 10px 14px 12px;
+        max-width: 520px;
+        position: relative;
+    }
+    .wr-embed-title { font-weight: 700; color: #fff; font-size: 1rem; margin-bottom: 4px; padding-right: 70px; }
+    .wr-embed-desc { font-size: 0.875rem; margin-bottom: 8px; white-space: pre-wrap; }
+    .wr-embed-thumb { position: absolute; top: 10px; right: 12px; width: 64px; height: 64px; border-radius: 8px; object-fit: cover; }
+    .wr-embed-fields { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px 12px; }
+    .wr-embed-field { font-size: 0.8rem; min-width: 0; }
+    .wr-embed-field.wr-full { grid-column: 1 / -1; }
+    .wr-embed-field-name { font-weight: 700; color: #fff; margin-bottom: 2px; }
+    .wr-embed-field-value { white-space: pre-wrap; word-break: break-word; }
+    .wr-embed-image { max-width: 100%; border-radius: 6px; margin-top: 10px; }
+    .wr-embed-footer { font-size: 0.7rem; color: #949ba4; margin-top: 8px; }
+    .wr-discord .wr-ping { background: rgba(88,101,242,0.3); color: #c9cdfb !important; border-radius: 3px; padding: 0 2px; }
+    @media (max-width: 992px) { .wr-embed-fields { grid-template-columns: repeat(2, 1fr); } }
+</style>
+
+<div class="container-fluid py-4" id="weeklyReportPage" data-guild-id="<%= guildId %>">
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <div>
+            <h3 class="fw-bold text-white mb-1"><i class="bi bi-calendar-week text-accent me-2"></i>Еженедельный отчёт</h3>
+            <p class="text-muted small mb-0">Бот сам публикует в Discord эмбед с итогами недели. Если отправка сорвалась, устаревший отчёт не уходит — в «Журнал» пишется уведомление о пропуске.</p>
+        </div>
+        <div class="form-check form-switch d-flex align-items-center gap-2">
+            <input class="form-check-input" type="checkbox" role="switch" id="wrEnabled" style="width: 3em; height: 1.5em;">
+            <label class="form-check-label fw-semibold text-white" for="wrEnabled">Включён</label>
+        </div>
+    </div>
+
+    <div id="wrAlert" class="alert py-2 small mb-3" style="display:none;"></div>
+
+    <div class="row g-4">
+        <!-- Левая колонка: настройки -->
+        <div class="col-xl-6">
+            <div class="d-flex flex-column gap-4">
+
+                <div class="wr-card">
+                    <h5 class="fw-bold text-white mb-3"><i class="bi bi-clock me-2"></i>Расписание и канал</h5>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label text-muted small">Канал для отчёта</label>
+                            <select class="form-select" id="wrChannel"><option value="">Загрузка...</option></select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label text-muted small">День недели</label>
+                            <select class="form-select" id="wrDay">
+                                <option value="1">Понедельник</option>
+                                <option value="2">Вторник</option>
+                                <option value="3">Среда</option>
+                                <option value="4">Четверг</option>
+                                <option value="5">Пятница</option>
+                                <option value="6">Суббота</option>
+                                <option value="0">Воскресенье</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label text-muted small">Время</label>
+                            <input type="time" class="form-control" id="wrTime" value="18:00">
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label text-muted small">Часовой пояс</label>
+                            <select class="form-select" id="wrTimezone">
+                                <option value="Europe/Berlin">Европа/Берлин</option>
+                                <option value="Europe/Moscow">Европа/Москва</option>
+                                <option value="Europe/Kyiv">Европа/Киев</option>
+                                <option value="Europe/Minsk">Европа/Минск</option>
+                                <option value="Europe/Warsaw">Европа/Варшава</option>
+                                <option value="Europe/London">Европа/Лондон</option>
+                                <option value="Asia/Almaty">Азия/Алматы</option>
+                                <option value="Asia/Tashkent">Азия/Ташкент</option>
+                                <option value="Asia/Yekaterinburg">Азия/Екатеринбург</option>
+                                <option value="Asia/Novosibirsk">Азия/Новосибирск</option>
+                                <option value="UTC">UTC</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <div class="small text-muted" id="wrStatus"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="wr-card">
+                    <h5 class="fw-bold text-white mb-3"><i class="bi bi-chat-left-text me-2"></i>Сообщение и оформление</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">Кого упомянуть</label>
+                            <select class="form-select" id="wrPingRole"><option value="">Не упоминать</option></select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">Цвет эмбеда</label>
+                            <div><input type="color" class="form-control form-control-color" id="wrColor" value="#8b5cf6"></div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-muted small">Текст над эмбедом (необязательно)</label>
+                            <textarea class="form-control" id="wrContent" rows="2" maxlength="1000" placeholder="Например: Всем привет! Свежие итоги недели 👇"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-muted small">Заголовок</label>
+                            <input type="text" class="form-control" id="wrTitle" maxlength="256">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-muted small">Описание</label>
+                            <textarea class="form-control" id="wrDescription" rows="2" maxlength="2000"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-muted small">Подпись внизу</label>
+                            <input type="text" class="form-control" id="wrFooter" maxlength="200">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-muted small">Ссылка на картинку (необязательно)</label>
+                            <input type="text" class="form-control" id="wrImageUrl" placeholder="https://...">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="wrThumbnail">
+                                <label class="form-check-label text-white small" for="wrThumbnail">Иконка сервера справа сверху</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="wrTimestamp">
+                                <label class="form-check-label text-white small" for="wrTimestamp">Показывать время отправки</label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="text-muted small">Подстановки в тексте, заголовке, описании и подписи: <code>{server}</code> — название сервера, <code>{from}</code> и <code>{to}</code> — даты начала и конца недели.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="wr-card">
+                    <h5 class="fw-bold text-white mb-3"><i class="bi bi-list-check me-2"></i>Что войдёт в отчёт</h5>
+                    <div class="row g-2">
+                        <div class="col-md-6"><div class="form-check form-switch"><input class="form-check-input wr-section" type="checkbox" role="switch" id="wrSec_members" data-section="members"><label class="form-check-label text-white small" for="wrSec_members">👥 Участники (вход / выход)</label></div></div>
+                        <div class="col-md-6"><div class="form-check form-switch"><input class="form-check-input wr-section" type="checkbox" role="switch" id="wrSec_applications" data-section="applications"><label class="form-check-label text-white small" for="wrSec_applications">📝 Заявки</label></div></div>
+                        <div class="col-md-6"><div class="form-check form-switch"><input class="form-check-input wr-section" type="checkbox" role="switch" id="wrSec_warnings" data-section="warnings"><label class="form-check-label text-white small" for="wrSec_warnings">⚠️ Предупреждения</label></div></div>
+                        <div class="col-md-6"><div class="form-check form-switch"><input class="form-check-input wr-section" type="checkbox" role="switch" id="wrSec_activity" data-section="activity"><label class="form-check-label text-white small" for="wrSec_activity">💬 Сообщения и войс</label></div></div>
+                        <div class="col-md-6"><div class="form-check form-switch"><input class="form-check-input wr-section" type="checkbox" role="switch" id="wrSec_activeChannel" data-section="activeChannel"><label class="form-check-label text-white small" for="wrSec_activeChannel">🔥 Самый активный канал</label></div></div>
+                        <div class="col-md-6"><div class="form-check form-switch"><input class="form-check-input wr-section" type="checkbox" role="switch" id="wrSec_comparison" data-section="comparison"><label class="form-check-label text-white small" for="wrSec_comparison">📈 Сравнение с прошлой неделей</label></div></div>
+                        <div class="col-md-6"><div class="form-check form-switch"><input class="form-check-input wr-section" type="checkbox" role="switch" id="wrSec_topMessages" data-section="topMessages"><label class="form-check-label text-white small" for="wrSec_topMessages">🏆 Топ по сообщениям — неделя</label></div></div>
+                        <div class="col-md-6"><div class="form-check form-switch"><input class="form-check-input wr-section" type="checkbox" role="switch" id="wrSec_topVoice" data-section="topVoice"><label class="form-check-label text-white small" for="wrSec_topVoice">🎙️ Топ по войсу — неделя</label></div></div>
+                        <div class="col-md-6"><div class="form-check form-switch"><input class="form-check-input wr-section" type="checkbox" role="switch" id="wrSec_allTimeMessages" data-section="allTimeMessages"><label class="form-check-label text-white small" for="wrSec_allTimeMessages">⭐ Топ по сообщениям — всё время</label></div></div>
+                        <div class="col-md-6"><div class="form-check form-switch"><input class="form-check-input wr-section" type="checkbox" role="switch" id="wrSec_allTimeVoice" data-section="allTimeVoice"><label class="form-check-label text-white small" for="wrSec_allTimeVoice">🎧 Топ по войсу — всё время</label></div></div>
+                        <div class="col-md-6"><div class="form-check form-switch"><input class="form-check-input wr-section" type="checkbox" role="switch" id="wrSec_levels" data-section="levels"><label class="form-check-label text-white small" for="wrSec_levels">🎖️ Топ по уровням</label></div></div>
+                        <div class="col-md-6"><div class="form-check form-switch"><input class="form-check-input wr-section" type="checkbox" role="switch" id="wrSec_swears" data-section="swears"><label class="form-check-label text-white small" for="wrSec_swears">🤬 Статистика матов</label></div></div>
+                        <div class="col-md-6 mt-3">
+                            <label class="form-label text-muted small">Мест в топах</label>
+                            <input type="number" class="form-control" id="wrTopLimit" min="3" max="10" value="5" style="max-width:120px;">
+                        </div>
+                        <div class="col-12">
+                            <div class="text-muted small">Топы «за всё время» считаются по накопленным счётчикам: стартовые данные взяты из событий за последние 90 дней, дальше счётчики растут сами.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Правая колонка: предпросмотр и действия -->
+        <div class="col-xl-6">
+            <div class="wr-card" style="position: sticky; top: 16px;">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                    <h5 class="fw-bold text-white mb-0"><i class="bi bi-eye me-2"></i>Предпросмотр</h5>
+                    <button class="btn btn-sm btn-outline-light" id="wrRefreshPreviewBtn"><i class="bi bi-arrow-clockwise me-1"></i>Обновить</button>
+                </div>
+
+                <div class="wr-discord mb-3">
+                    <div id="wrPreview"><span class="text-muted small">Загрузка предпросмотра...</span></div>
+                </div>
+
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <button class="btn btn-accent text-white fw-semibold" id="wrSaveBtn"><i class="bi bi-save-fill me-1"></i>Сохранить настройки</button>
+                    <button class="btn btn-outline-light" id="wrSendNowBtn"><i class="bi bi-send-fill me-1"></i>Отправить сейчас</button>
+                </div>
+                <div class="text-muted small mt-2">Предпросмотр и ручная отправка используют текущие значения формы, даже если вы их ещё не сохранили. Расписание работает только по сохранённым настройкам.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/weeklyReport.js"></script>

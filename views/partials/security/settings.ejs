@@ -1,0 +1,310 @@
+<div class="security-tab">
+    <div class="tab-header">
+        <h2>🛡️ Настройки защиты</h2>
+        <p class="text-muted">Глобальные настройки системы защиты сервера</p>
+    </div>
+
+    <div class="settings-section">
+        <div class="setting-card">
+            <div class="setting-header">
+                <h3>🔧 Основные настройки</h3>
+            </div>
+            <div class="setting-content">
+                <div class="setting-item">
+                    <label class="setting-label">
+                        <input type="checkbox" id="securityEnabled" checked>
+                        <span>Включить систему защиты</span>
+                    </label>
+                    <p class="setting-description">Когда выключено, система защиты не будет блокировать действия</p>
+                </div>
+
+                <div class="setting-item">
+                    <label class="setting-label">Канал для уведомлений</label>
+                    <select id="notificationChannel" class="form-control">
+                        <option value="">Выберите канал...</option>
+                    </select>
+                    <p class="setting-description">Куда отправлять уведомления о критических действиях</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="setting-card">
+            <div class="setting-header">
+                <h3>📊 Статистика системы</h3>
+            </div>
+            <div class="setting-content">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalRestrictions">-</div>
+                        <div class="stat-label">Активных ограничений</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalWhitelist">-</div>
+                        <div class="stat-label">В белом списке</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalLogs">-</div>
+                        <div class="stat-label">Записей в логах</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalBackups">-</div>
+                        <div class="stat-label">Резервных копий</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="setting-actions">
+            <button id="saveSettingsBtn" class="btn btn-success">💾 Сохранить настройки</button>
+            <button id="loadSettingsBtn" class="btn btn-secondary">🔄 Обновить</button>
+        </div>
+    </div>
+</div>
+
+<style>
+.security-tab {
+    padding: 20px;
+}
+
+.tab-header {
+    margin-bottom: 30px;
+}
+
+.tab-header h2 {
+    margin: 0 0 10px 0;
+    color: #ffffff;
+}
+
+.text-muted {
+    color: #99aab5;
+}
+
+.settings-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.setting-card {
+    background: #2f3136;
+    border: 1px solid #40444b;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.setting-header {
+    padding: 15px 20px;
+    background: #393c43;
+    border-bottom: 1px solid #40444b;
+}
+
+.setting-header h3 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 16px;
+}
+
+.setting-content {
+    padding: 20px;
+}
+
+.setting-item {
+    margin-bottom: 25px;
+}
+
+.setting-item:last-child {
+    margin-bottom: 0;
+}
+
+.setting-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    cursor: pointer;
+}
+
+.setting-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.setting-description {
+    margin: 8px 0 0 0;
+    color: #99aab5;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #40444b;
+    border-radius: 4px;
+    background: #393c43;
+    color: #ffffff;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #5865f2;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.stat-item {
+    background: #393c43;
+    border: 1px solid #40444b;
+    border-radius: 6px;
+    padding: 15px;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #5865f2;
+    margin-bottom: 8px;
+}
+
+.stat-label {
+    color: #99aab5;
+    font-size: 12px;
+}
+
+.setting-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-success {
+    background: #3ba55c;
+    color: #ffffff;
+}
+
+.btn-success:hover {
+    background: #2d7d46;
+}
+
+.btn-secondary {
+    background: #4f545c;
+    color: #ffffff;
+}
+
+.btn-secondary:hover {
+    background: #3d4248;
+}
+</style>
+
+<script>
+const GUILD_ID = '<%= guildId %>';
+
+// Загрузить каналы
+async function loadChannels() {
+    try {
+        const response = await fetch(`/api/guilds/${GUILD_ID}/channels`);
+        const channels = await response.json();
+
+        const select = document.getElementById('notificationChannel');
+        select.innerHTML = '<option value="">Выберите канал...</option>';
+        
+        channels.forEach(channel => {
+            const option = document.createElement('option');
+            option.value = channel.id;
+            option.textContent = channel.name;
+            select.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Ошибка загрузки каналов:', error);
+    }
+}
+
+// Загрузить настройки
+async function loadSettings() {
+    try {
+        const response = await fetch('/api/security/settings');
+        const settings = await response.json();
+
+        document.getElementById('securityEnabled').checked = settings.enabled !== false;
+        document.getElementById('notificationChannel').value = settings.notification_channel_id || '';
+
+        // Загрузить статистику
+        loadStats();
+    } catch (error) {
+        console.error('Ошибка загрузки настроек:', error);
+    }
+}
+
+// Загрузить статистику
+async function loadStats() {
+    try {
+        const [restrictions, whitelist, logs, backups] = await Promise.all([
+            fetch('/api/security/restrictions').then(r => r.json()),
+            fetch('/api/security/whitelist').then(r => r.json()),
+            fetch('/api/security/logs?limit=1').then(r => r.json()),
+            fetch('/api/security/backups').then(r => r.json())
+        ]);
+
+        document.getElementById('totalRestrictions').textContent = restrictions.length;
+        document.getElementById('totalWhitelist').textContent = whitelist.length;
+        document.getElementById('totalLogs').textContent = logs.length;
+        document.getElementById('totalBackups').textContent = backups.length;
+    } catch (error) {
+        console.error('Ошибка загрузки статистики:', error);
+    }
+}
+
+// Сохранить настройки
+document.getElementById('saveSettingsBtn').addEventListener('click', async () => {
+    const enabled = document.getElementById('securityEnabled').checked;
+    const notification_channel_id = document.getElementById('notificationChannel').value;
+
+    try {
+        const response = await fetch('/api/security/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ enabled, notification_channel_id })
+        });
+
+        if (response.ok) {
+            alert('Настройки сохранены!');
+            loadStats();
+        } else {
+            alert('Ошибка сохранения настроек');
+        }
+    } catch (error) {
+        alert('Ошибка сохранения настроек');
+    }
+});
+
+// Обновить
+document.getElementById('loadSettingsBtn').addEventListener('click', () => {
+    loadSettings();
+    loadChannels();
+});
+
+// Загрузить при инициализации
+loadChannels();
+loadSettings();
+</script>

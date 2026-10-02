@@ -1,0 +1,175 @@
+<style>
+    .app-row {
+        background: #181920;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+        padding: 16px 20px;
+        transition: border-color 0.15s ease;
+    }
+    .app-row:hover { border-color: color-mix(in srgb, var(--accent-color) 40%, transparent); }
+    .app-avatar { width: 36px; height: 36px; }
+    .app-answer {
+        background: rgba(255,255,255,0.03);
+        border-radius: 8px;
+        padding: 8px 12px;
+        margin-top: 6px;
+    }
+    .apps-stat-card {
+        background: #181920;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+        padding: 16px 18px;
+        height: 100%;
+    }
+    .apps-panel {
+        background: #181920;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+        padding: 18px;
+        height: 100%;
+    }
+    .daily-bars {
+        display: flex;
+        align-items: flex-end;
+        gap: 3px;
+        height: 110px;
+    }
+    .daily-bar {
+        flex: 1 1 0;
+        min-width: 4px;
+        background: var(--accent-color);
+        border-radius: 3px 3px 0 0;
+        opacity: 0.85;
+    }
+    .daily-bar.empty { background: rgba(255,255,255,0.08); opacity: 1; }
+    .daily-labels {
+        display: flex;
+        justify-content: space-between;
+        color: #6b7280;
+        font-size: 0.68rem;
+        margin-top: 4px;
+    }
+    .stats-table th {
+        color: #9ca3af;
+        font-weight: 600;
+        font-size: 0.75rem;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .stats-table td {
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        font-size: 0.85rem;
+        vertical-align: middle;
+    }
+</style>
+
+<div class="container-fluid py-4" id="formApplicationsPage">
+
+    <!-- ======= СТАТИСТИКА ПО ФОРМАМ ======= -->
+    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-3">
+        <div>
+            <h3 class="fw-bold text-white mb-1"><i class="bi bi-bar-chart-line text-accent me-2"></i>Статистика заявок</h3>
+            <p class="text-muted small mb-0">Сколько заявок подано, как их рассматривают и кто принимает решения</p>
+        </div>
+        <select class="form-select" id="statsPeriodSelect" style="background:#181920; color:#fff; border:1px solid rgba(255,255,255,0.1); width:auto;">
+            <option value="7">7 дней</option>
+            <option value="30" selected>30 дней</option>
+            <option value="90">90 дней</option>
+            <option value="365">Год</option>
+        </select>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-xl-3 col-md-6">
+            <div class="apps-stat-card">
+                <div class="text-muted small mb-1">Подано заявок</div>
+                <div class="text-white fw-bold fs-3" id="statAppsTotal">—</div>
+                <div class="text-muted small">в ожидании: <span id="statAppsPending">—</span></div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="apps-stat-card">
+                <div class="text-muted small mb-1">Принято</div>
+                <div class="fw-bold fs-3" style="color:#4ade80;" id="statAppsAccepted">—</div>
+                <div class="text-muted small">доля принятия: <span id="statAppsRate">—</span></div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="apps-stat-card">
+                <div class="text-muted small mb-1">Отклонено</div>
+                <div class="fw-bold fs-3" style="color:#f87171;" id="statAppsRejected">—</div>
+                <div class="text-muted small">за выбранный период</div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="apps-stat-card">
+                <div class="text-muted small mb-1">Среднее время решения</div>
+                <div class="text-white fw-bold fs-3" id="statAppsAvg">—</div>
+                <div class="text-muted small">от подачи до решения</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-lg-8">
+            <div class="apps-panel">
+                <h6 class="text-white fw-bold mb-3">Заявки по дням <span class="text-muted fw-normal small">(последние 30 дней максимум)</span></h6>
+                <div class="daily-bars" id="statsDailyBars"></div>
+                <div class="daily-labels" id="statsDailyLabels"></div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="apps-panel">
+                <h6 class="text-white fw-bold mb-3">Кто чаще решает</h6>
+                <div id="statsModerators"><span class="text-muted small">Загрузка...</span></div>
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="apps-panel">
+                <h6 class="text-white fw-bold mb-3">По формам</h6>
+                <div class="table-responsive">
+                    <table class="table table-borderless stats-table mb-0 text-light" style="--bs-table-bg: transparent; --bs-table-color: inherit;">
+                        <thead>
+                            <tr>
+                                <th>Форма</th>
+                                <th class="text-end">Подано</th>
+                                <th class="text-end">Принято</th>
+                                <th class="text-end">Отклонено</th>
+                                <th class="text-end">В ожидании</th>
+                                <th class="text-end">Ср. время решения</th>
+                            </tr>
+                        </thead>
+                        <tbody id="statsPerForm">
+                            <tr><td colspan="6" class="text-muted">Загрузка...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======= ИСТОРИЯ ЗАЯВОК ======= -->
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <div>
+            <h3 class="fw-bold text-white mb-1"><i class="bi bi-clipboard-data text-accent me-2"></i>История заявок</h3>
+            <p class="text-muted small mb-0">Все заявки, поданные через формы-конструктор: на рассмотрении, принятые и отклонённые</p>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <select class="form-select" id="statusFilterSelect" style="background:#181920; color:#fff; border:1px solid rgba(255,255,255,0.1); width:180px;">
+                <option value="">Все статусы</option>
+                <option value="pending">На рассмотрении</option>
+                <option value="accepted">Принятые</option>
+                <option value="rejected">Отклонённые</option>
+            </select>
+            <input type="text" class="form-control" id="appsSearchInput" placeholder="Поиск по ID заявки/пользователя..." style="background:#181920; color:#fff; border:1px solid rgba(255,255,255,0.1); width:280px;">
+            <button class="btn btn-outline-light" id="appsExportBtn"><i class="bi bi-download me-1"></i>CSV</button>
+        </div>
+    </div>
+
+    <div id="formApplicationsList" class="d-flex flex-column gap-3"></div>
+
+    <p class="text-muted text-center py-5 mb-0" id="formApplicationsEmpty" style="display:none;">
+        Пока нет ни одной заявки. Как только кто-то подаст заявку через форму, она появится здесь.
+    </p>
+</div>
+
+<script src="/js/formApplications.js"></script>

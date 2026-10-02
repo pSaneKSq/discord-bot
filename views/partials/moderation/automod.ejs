@@ -1,0 +1,192 @@
+<style>
+    .automod-card {
+        background: #181920;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+        padding: 20px;
+    }
+    .automod-card .form-control, .automod-card .form-select {
+        background: #121318 !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        color: #fff !important;
+    }
+    #exemptRolesList {
+        max-height: 180px;
+        overflow-y: auto;
+        background: #121318;
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 8px;
+        padding: 10px;
+    }
+</style>
+
+<div class="container-fluid py-4" id="automodPage" data-guild-id="<%= guildId %>">
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <div>
+            <h3 class="fw-bold text-white mb-1"><i class="bi bi-robot text-accent me-2"></i>Автомодерация</h3>
+            <p class="text-muted small mb-0">Автоматическая проверка сообщений на сервере. Все срабатывания попадают в «Журнал».</p>
+        </div>
+        <div class="form-check form-switch d-flex align-items-center gap-2">
+            <input class="form-check-input" type="checkbox" role="switch" id="automodEnabledSwitch" style="width: 3em; height: 1.5em;">
+            <label class="form-check-label fw-semibold text-white" for="automodEnabledSwitch">Включена</label>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Банворды -->
+        <div class="col-lg-6">
+            <div class="automod-card">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h5 class="fw-bold text-white mb-0"><i class="bi bi-chat-square-text me-2"></i>Банворды</h5>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="bannedWordsEnabledSwitch">
+                    </div>
+                </div>
+                <label class="form-label text-muted small">Список запрещённых слов (по одному на строку)</label>
+                <textarea class="form-control" id="bannedWordsTextarea" rows="6" placeholder="слово1&#10;слово2&#10;слово3"></textarea>
+            </div>
+        </div>
+
+        <!-- Антиспам -->
+        <div class="col-lg-6">
+            <div class="automod-card">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h5 class="fw-bold text-white mb-0"><i class="bi bi-lightning-charge me-2"></i>Антиспам</h5>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="spamEnabledSwitch">
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-6">
+                        <label class="form-label text-muted small">Макс. сообщений</label>
+                        <input type="number" min="1" class="form-control" id="spamMaxMessagesInput">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label text-muted small">За N секунд</label>
+                        <input type="number" min="1" class="form-control" id="spamPerSecondsInput">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Капс -->
+        <div class="col-lg-6">
+            <div class="automod-card">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h5 class="fw-bold text-white mb-0"><i class="bi bi-type me-2"></i>Лимит капса</h5>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="capsEnabledSwitch">
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-6">
+                        <label class="form-label text-muted small">Мин. длина сообщения</label>
+                        <input type="number" min="1" class="form-control" id="capsMinLengthInput">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label text-muted small">Макс. % заглавных букв</label>
+                        <input type="number" min="1" max="100" class="form-control" id="capsMaxPercentInput">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Инвайты + mention-спам -->
+        <div class="col-lg-6">
+            <div class="automod-card mb-4">
+                <div class="d-flex align-items-center justify-content-between">
+                    <h5 class="fw-bold text-white mb-0"><i class="bi bi-link-45deg me-2"></i>Антиинвайт</h5>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="invitesEnabledSwitch">
+                    </div>
+                </div>
+                <p class="text-muted small mb-0 mt-2">Удаляет сообщения со ссылками-приглашениями на другие Discord-серверы.</p>
+            </div>
+
+            <div class="automod-card">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h5 class="fw-bold text-white mb-0"><i class="bi bi-at me-2"></i>Mention-спам</h5>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="mentionSpamEnabledSwitch">
+                    </div>
+                </div>
+                <label class="form-label text-muted small">Макс. упоминаний в одном сообщении</label>
+                <input type="number" min="1" class="form-control" id="mentionMaxInput">
+            </div>
+        </div>
+
+        <!-- Защищённые роли -->
+        <div class="col-lg-6">
+            <div class="automod-card">
+                <h5 class="fw-bold text-white mb-1"><i class="bi bi-shield-check me-2"></i>Защищённые роли</h5>
+                <p class="text-muted small mb-3">Участники с этими ролями не проверяются автомодерацией.</p>
+                <div id="exemptRolesList">
+                    <span class="text-muted small">Загрузка ролей...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Защита от тупых людей -->
+        <div class="col-lg-6">
+            <div class="automod-card">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <h5 class="fw-bold text-white mb-0"><i class="bi bi-emoji-expressionless me-2"></i>Защита от тупых людей</h5>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="pedantryEnabledSwitch">
+                    </div>
+                </div>
+                <p class="text-muted small mb-3">
+                    Мутит тех, кто поправляет других за грамматику. Например: «Кароче пишут через о» или
+                    «вообще-то слово молоко пишется через о». Бот ищет фразы-триггеры из списка ниже
+                    (звёздочка не нужна). Сообщения со знаком «?» не трогаются.
+                </p>
+
+                <label class="form-label text-muted small">Срок мута</label>
+                <div class="d-flex gap-2 mb-3">
+                    <input type="number" min="1" class="form-control" id="pedantryMuteValueInput" style="max-width: 140px;">
+                    <select class="form-select" id="pedantryMuteUnitSelect" style="max-width: 160px;">
+                        <option value="1">минут</option>
+                        <option value="60">часов</option>
+                        <option value="1440">дней</option>
+                    </select>
+                </div>
+                <div class="text-muted small mb-3" style="margin-top: -8px;">Максимум — 28 дней (ограничение Discord).</div>
+
+                <div class="form-check form-switch mb-2">
+                    <input class="form-check-input" type="checkbox" role="switch" id="pedantryDeleteSwitch">
+                    <label class="form-check-label text-white small" for="pedantryDeleteSwitch">Удалять сообщение-поправку</label>
+                </div>
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" role="switch" id="pedantrySendDmSwitch">
+                    <label class="form-check-label text-white small" for="pedantrySendDmSwitch">Отправлять нарушителю личное сообщение</label>
+                </div>
+
+                <label class="form-label text-muted small">Текст ЛС <span class="text-muted">(можно использовать {duration} — срок мута и {server} — название сервера)</span></label>
+                <textarea class="form-control mb-3" id="pedantryDmTextarea" rows="3" maxlength="1000"></textarea>
+
+                <label class="form-label text-muted small">Фразы-триггеры (по одной на строку)</label>
+                <textarea class="form-control mb-3" id="pedantryPhrasesTextarea" rows="5" placeholder="пишется через&#10;правильно пишется"></textarea>
+
+                <div class="form-check form-switch mb-1">
+                    <input class="form-check-input" type="checkbox" role="switch" id="pedantryStrictSwitch">
+                    <label class="form-check-label text-white small" for="pedantryStrictSwitch">Строгий режим: мутить за любое сообщение с одной «*» в начале или в конце</label>
+                </div>
+                <div class="text-warning small">⚠️ В строгом режиме мут получит и тот, кто исправляет собственную опечатку («*короче»).</div>
+
+                <div class="text-muted small mt-3">
+                    Боту нужно право <b>«Модерировать участников»</b>, а его роль должна стоять выше ролей участников.
+                    Владельца и админов замутить нельзя — в таком случае в «Журнале» появится пометка «мут не применён».
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex align-items-center gap-3 mt-4">
+        <button type="button" class="btn text-white fw-semibold px-4" id="automodSaveBtn" style="background: var(--accent-color); border: none;">
+            <i class="bi bi-save-fill me-1"></i> Сохранить настройки
+        </button>
+        <span class="text-muted small" id="automodSaveStatus"></span>
+    </div>
+</div>
+
+<script src="/js/moderationAutomod.js"></script>

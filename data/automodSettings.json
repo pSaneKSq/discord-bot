@@ -1,0 +1,92 @@
+{
+  "1553072132978905178": {
+    "enabled": true,
+    "exemptRoleIds": [],
+    "bannedWords": {
+      "enabled": false,
+      "words": []
+    },
+    "spam": {
+      "enabled": true,
+      "maxMessages": 5,
+      "perSeconds": 5
+    },
+    "caps": {
+      "enabled": true,
+      "minLength": 10,
+      "maxPercent": 70
+    },
+    "invites": {
+      "enabled": false
+    },
+    "mentionSpam": {
+      "enabled": false,
+      "maxMentions": 5
+    },
+    "pedantry": {
+      "enabled": true,
+      "muteMinutes": 60,
+      "deleteMessage": false,
+      "sendDm": true,
+      "strictAsterisk": false,
+      "dmText": "Ты сильно переусердствовал, когда поправлял других — отдохни. 😴\nТебе выдан мут на {duration}.",
+      "triggerPhrases": [
+        "пишется через",
+        "пишут через",
+        "пишется с",
+        "пишется без",
+        "пишется слитно",
+        "пишется раздельно",
+        "правильно пишется",
+        "правильно будет",
+        "правильно говорить",
+        "правильно писать"
+      ]
+    },
+    "1553072132978905178": {
+      "enabled": false,
+      "exemptRoleIds": [],
+      "bannedWords": {
+        "enabled": false,
+        "words": []
+      },
+      "spam": {
+        "enabled": false,
+        "maxMessages": 5,
+        "perSeconds": 5
+      },
+      "caps": {
+        "enabled": false,
+        "minLength": 10,
+        "maxPercent": 70
+      },
+      "invites": {
+        "enabled": false
+      },
+      "mentionSpam": {
+        "enabled": false,
+        "maxMentions": 5
+      },
+      "pedantry": {
+        "enabled": false,
+        "muteMinutes": 60,
+        "deleteMessage": false,
+        "sendDm": true,
+        "strictAsterisk": false,
+        "dmText": "Ты сильно переусердствовал, когда поправлял других — отдохни. 😴\nТебе выдан мут на {duration}.",
+        "triggerPhrases": [
+          "пишется через",
+          "пишут через",
+          "пишется с",
+          "пишется без",
+          "пишется слитно",
+          "пишется раздельно",
+          "правильно пишется",
+          "правильно будет",
+          "правильно говорить",
+          "правильно писать"
+        ]
+      }
+    }
+  }
+}

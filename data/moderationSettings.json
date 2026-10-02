@@ -1,0 +1,42 @@
+{
+  "1553072132978905178": {
+    "logChannelId": "1553093930365493298",
+    "events": {
+      "warn": true,
+      "member_join": true,
+      "member_leave": true,
+      "sostav_call": true,
+      "other": true
+    },
+    "1553072132978905178": {
+      "logChannelId": "",
+      "events": {
+        "warn": true,
+        "member_join": true,
+        "member_leave": true,
+        "sostav_call": true,
+        "form_decision": true,
+        "automod": true,
+        "message_edit": false,
+        "message_delete": false,
+        "weekly_report": true,
+        "poll": true,
+        "other": true
+      },
+      "warnings": {
+        "expireDays": 30,
+        "steps": [
+          {
+            "count": 4,
+            "action": "timeout",
+            "minutes": 10080
+          }
+        ]
+      },
+      "messageLog": {
+        "enabled": true,
+        "retentionDays": 30
+      }
+    }
+  }
+}

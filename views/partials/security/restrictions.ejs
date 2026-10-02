@@ -1,0 +1,865 @@
+<div class="security-tab">
+    <div class="tab-header">
+        <h2>🛡️ Ограничения администраторов</h2>
+        <p class="text-muted">Настройка ограничений для участников с правами администратора</p>
+    </div>
+
+    <div class="search-section">
+        <div class="search-box">
+            <input type="text" id="userSearch" placeholder="Введите ник или ID участника..." class="form-control">
+            <button id="searchUserBtn" class="btn btn-primary">🔍 Найти</button>
+        </div>
+        <div id="searchResults" class="search-results"></div>
+    </div>
+
+    <div id="userProfile" class="user-profile" style="display: none;">
+        <div class="profile-header">
+            <img id="profileAvatar" src="" alt="Avatar" class="profile-avatar">
+            <div class="profile-info">
+                <h3 id="profileUsername">Username</h3>
+                <p id="profileDisplayName" class="text-muted">Display Name</p>
+                <p id="profileUserId" class="text-muted">ID: 123456789</p>
+            </div>
+        </div>
+
+        <div class="restrictions-section">
+            <h4>Ограничения</h4>
+            <div class="restrictions-grid">
+                <div class="restriction-item">
+                    <label class="restriction-label">
+                        <input type="checkbox" class="restriction-checkbox" data-type="role_edit">
+                        <span>📝 Редактирование ролей</span>
+                    </label>
+                    <select class="restriction-method" data-type="role_edit">
+                        <option value="block">🚫 Полный запрет</option>
+                        <option value="confirm">✅ Требование подтверждения</option>
+                        <option value="delay">⏱️ Временная задержка</option>
+                        <option value="log">📋 Только логирование</option>
+                    </select>
+                    <label class="notification-toggle">
+                        <input type="checkbox" class="notification-checkbox" data-type="role_edit">
+                        <span>🔔 Уведомлять</span>
+                    </label>
+                </div>
+
+                <div class="restriction-item">
+                    <label class="restriction-label">
+                        <input type="checkbox" class="restriction-checkbox" data-type="role_create">
+                        <span>➕ Создание ролей</span>
+                    </label>
+                    <select class="restriction-method" data-type="role_create">
+                        <option value="block">🚫 Полный запрет</option>
+                        <option value="confirm">✅ Требование подтверждения</option>
+                        <option value="delay">⏱️ Временная задержка</option>
+                        <option value="log">📋 Только логирование</option>
+                    </select>
+                    <label class="notification-toggle">
+                        <input type="checkbox" class="notification-checkbox" data-type="role_create">
+                        <span>🔔 Уведомлять</span>
+                    </label>
+                </div>
+
+                <div class="restriction-item">
+                    <label class="restriction-label">
+                        <input type="checkbox" class="restriction-checkbox" data-type="role_delete">
+                        <span>🗑️ Удаление ролей</span>
+                    </label>
+                    <select class="restriction-method" data-type="role_delete">
+                        <option value="block">🚫 Полный запрет</option>
+                        <option value="confirm">✅ Требование подтверждения</option>
+                        <option value="delay">⏱️ Временная задержка</option>
+                        <option value="log">📋 Только логирование</option>
+                    </select>
+                    <label class="notification-toggle">
+                        <input type="checkbox" class="notification-checkbox" data-type="role_delete">
+                        <span>🔔 Уведомлять</span>
+                    </label>
+                </div>
+
+                <div class="restriction-item">
+                    <label class="restriction-label">
+                        <input type="checkbox" class="restriction-checkbox" data-type="unban">
+                        <span>🔓 Разбанивание</span>
+                    </label>
+                    <select class="restriction-method" data-type="unban">
+                        <option value="block">🚫 Полный запрет</option>
+                        <option value="confirm">✅ Требование подтверждения</option>
+                        <option value="delay">⏱️ Временная задержка</option>
+                        <option value="log">📋 Только логирование</option>
+                    </select>
+                    <label class="notification-toggle">
+                        <input type="checkbox" class="notification-checkbox" data-type="unban">
+                        <span>🔔 Уведомлять</span>
+                    </label>
+                </div>
+
+                <div class="restriction-item">
+                    <label class="restriction-label">
+                        <input type="checkbox" class="restriction-checkbox" data-type="unmute">
+                        <span>🔊 Размучивание</span>
+                    </label>
+                    <select class="restriction-method" data-type="unmute">
+                        <option value="block">🚫 Полный запрет</option>
+                        <option value="confirm">✅ Требование подтверждения</option>
+                        <option value="delay">⏱️ Временная задержка</option>
+                        <option value="log">📋 Только логирование</option>
+                    </select>
+                    <label class="notification-toggle">
+                        <input type="checkbox" class="notification-checkbox" data-type="unmute">
+                        <span>🔔 Уведомлять</span>
+                    </label>
+                </div>
+
+                <div class="restriction-item">
+                    <label class="restriction-label">
+                        <input type="checkbox" class="restriction-checkbox" data-type="admin_change">
+                        <span>👑 Изменение прав администратора</span>
+                    </label>
+                    <select class="restriction-method" data-type="admin_change">
+                        <option value="block">🚫 Полный запрет</option>
+                        <option value="confirm">✅ Требование подтверждения</option>
+                        <option value="delay">⏱️ Временная задержка</option>
+                        <option value="log">📋 Только логирование</option>
+                    </select>
+                    <label class="notification-toggle">
+                        <input type="checkbox" class="notification-checkbox" data-type="admin_change">
+                        <span>🔔 Уведомлять</span>
+                    </label>
+                </div>
+
+                <div class="restriction-item">
+                    <label class="restriction-label">
+                        <input type="checkbox" class="restriction-checkbox" data-type="mass_action">
+                        <span>⚡ Массовые действия</span>
+                    </label>
+                    <select class="restriction-method" data-type="mass_action">
+                        <option value="block">🚫 Полный запрет</option>
+                        <option value="confirm">✅ Требование подтверждения</option>
+                        <option value="delay">⏱️ Временная задержка</option>
+                        <option value="log">📋 Только логирование</option>
+                    </select>
+                    <label class="notification-toggle">
+                        <input type="checkbox" class="notification-checkbox" data-type="mass_action">
+                        <span>🔔 Уведомлять</span>
+                    </label>
+                </div>
+
+                <div class="restriction-item">
+                    <label class="restriction-label">
+                        <input type="checkbox" class="restriction-checkbox" data-type="server_settings">
+                        <span>⚙️ Изменение настроек сервера</span>
+                    </label>
+                    <select class="restriction-method" data-type="server_settings">
+                        <option value="block">🚫 Полный запрет</option>
+                        <option value="confirm">✅ Требование подтверждения</option>
+                        <option value="delay">⏱️ Временная задержка</option>
+                        <option value="log">📋 Только логирование</option>
+                    </select>
+                    <label class="notification-toggle">
+                        <input type="checkbox" class="notification-checkbox" data-type="server_settings">
+                        <span>🔔 Уведомлять</span>
+                    </label>
+                </div>
+
+                <div class="restriction-item">
+                    <label class="restriction-label">
+                        <input type="checkbox" class="restriction-checkbox" data-type="server_rename">
+                        <span>🏷️ Переименование сервера</span>
+                    </label>
+                    <select class="restriction-method" data-type="server_rename">
+                        <option value="block">🚫 Полный запрет</option>
+                        <option value="confirm">✅ Требование подтверждения</option>
+                        <option value="delay">⏱️ Временная задержка</option>
+                        <option value="log">📋 Только логирование</option>
+                    </select>
+                    <label class="notification-toggle">
+                        <input type="checkbox" class="notification-checkbox" data-type="server_rename">
+                        <span>🔔 Уведомлять</span>
+                    </label>
+                </div>
+
+                <div class="restriction-item">
+                    <label class="restriction-label">
+                        <input type="checkbox" class="restriction-checkbox" data-type="webhook_manage">
+                        <span>🪝 Управление вебхуками</span>
+                    </label>
+                    <select class="restriction-method" data-type="webhook_manage">
+                        <option value="block">🚫 Полный запрет</option>
+                        <option value="confirm">✅ Требование подтверждения</option>
+                        <option value="delay">⏱️ Временная задержка</option>
+                        <option value="log">📋 Только логирование</option>
+                    </select>
+                    <label class="notification-toggle">
+                        <input type="checkbox" class="notification-checkbox" data-type="webhook_manage">
+                        <span>🔔 Уведомлять</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="auto-punishments-section">
+                <h4>⚡ Автоматические наказания при нарушениях</h4>
+                <div class="restrictions-grid">
+                    <div class="restriction-item">
+                        <label class="restriction-label">
+                            <input type="checkbox" class="restriction-checkbox" data-type="auto_ban">
+                            <span>🔨 Автоматический бан</span>
+                        </label>
+                        <select class="restriction-method" data-type="auto_ban">
+                            <option value="block">🚫 Банить при нарушении</option>
+                            <option value="log">📋 Только логировать</option>
+                        </select>
+                        <label class="notification-toggle">
+                            <input type="checkbox" class="notification-checkbox" data-type="auto_ban">
+                            <span>🔔 Уведомлять</span>
+                        </label>
+                    </div>
+
+                    <div class="restriction-item">
+                        <label class="restriction-label">
+                            <input type="checkbox" class="restriction-checkbox" data-type="auto_kick">
+                            <span>👢 Автоматический кик</span>
+                        </label>
+                        <select class="restriction-method" data-type="auto_kick">
+                            <option value="block">🚫 Кикать при нарушении</option>
+                            <option value="log">📋 Только логировать</option>
+                        </select>
+                        <label class="notification-toggle">
+                            <input type="checkbox" class="notification-checkbox" data-type="auto_kick">
+                            <span>🔔 Уведомлять</span>
+                        </label>
+                    </div>
+
+                    <div class="restriction-item">
+                        <label class="restriction-label">
+                            <input type="checkbox" class="restriction-checkbox" data-type="auto_demote">
+                            <span>📉 Автоматическое понижение</span>
+                        </label>
+                        <select class="restriction-method" data-type="auto_demote">
+                            <option value="block">🚫 Отбирать админку при нарушении</option>
+                            <option value="log">📋 Только логировать</option>
+                        </select>
+                        <label class="notification-toggle">
+                            <input type="checkbox" class="notification-checkbox" data-type="auto_demote">
+                            <span>🔔 Уведомлять</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-actions">
+                <button id="saveRestrictions" class="btn btn-success">💾 Сохранить ограничения</button>
+                <button id="removeAllRestrictions" class="btn btn-danger">🗑️ Удалить все ограничения</button>
+                <button id="closeProfile" class="btn btn-secondary">✖️ Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="existing-restrictions">
+        <h4>Существующие ограничения</h4>
+        <div id="restrictionsList" class="restrictions-list">
+            <p class="text-muted">Загрузка...</p>
+        </div>
+    </div>
+</div>
+
+<style>
+.security-tab {
+    padding: 20px;
+}
+
+.tab-header {
+    margin-bottom: 30px;
+}
+
+.tab-header h2 {
+    margin: 0 0 10px 0;
+    color: #ffffff;
+}
+
+.text-muted {
+    color: #99aab5;
+}
+
+.search-section {
+    margin-bottom: 30px;
+}
+
+.search-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.search-box input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #40444b;
+    border-radius: 4px;
+    background: #2f3136;
+    color: #ffffff;
+    font-size: 14px;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: #5865f2;
+}
+
+.search-results {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.search-result-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px;
+    background: #2f3136;
+    border: 1px solid #40444b;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.search-result-item:hover {
+    background: #393c43;
+    border-color: #5865f2;
+}
+
+.search-result-item img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.search-result-info {
+    flex: 1;
+}
+
+.search-result-info h4 {
+    margin: 0 0 4px 0;
+    color: #ffffff;
+    font-size: 14px;
+}
+
+.search-result-info p {
+    margin: 0;
+    color: #99aab5;
+    font-size: 12px;
+}
+
+.user-profile {
+    background: #2f3136;
+    border: 1px solid #40444b;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #40444b;
+}
+
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+}
+
+.profile-info h3 {
+    margin: 0 0 8px 0;
+    color: #ffffff;
+    font-size: 24px;
+}
+
+.profile-info p {
+    margin: 4px 0;
+    color: #99aab5;
+    font-size: 14px;
+}
+
+.restrictions-section h4 {
+    margin: 0 0 20px 0;
+    color: #ffffff;
+}
+
+.auto-punishments-section {
+    background: #2f3136;
+    border: 1px solid #40444b;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 30px;
+}
+
+.auto-punishments-section h4 {
+    margin: 0 0 20px 0;
+    color: #ffffff;
+}
+
+.restrictions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.restriction-item {
+    background: #393c43;
+    border: 1px solid #40444b;
+    border-radius: 6px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.restriction-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #ffffff;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.restriction-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.restriction-method {
+    padding: 8px 12px;
+    border: 1px solid #40444b;
+    border-radius: 4px;
+    background: #2f3136;
+    color: #ffffff;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.restriction-method:focus {
+    outline: none;
+    border-color: #5865f2;
+}
+
+.notification-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #99aab5;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.notification-toggle input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.profile-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: #5865f2;
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background: #4752c4;
+}
+
+.btn-success {
+    background: #3ba55c;
+    color: #ffffff;
+}
+
+.btn-success:hover {
+    background: #2d7d46;
+}
+
+.btn-danger {
+    background: #ed4245;
+    color: #ffffff;
+}
+
+.btn-danger:hover {
+    background: #c93b3e;
+}
+
+.btn-secondary {
+    background: #4f545c;
+    color: #ffffff;
+}
+
+.btn-secondary:hover {
+    background: #3d4248;
+}
+
+.existing-restrictions {
+    margin-top: 30px;
+}
+
+.existing-restrictions h4 {
+    margin: 0 0 15px 0;
+    color: #ffffff;
+}
+
+.restrictions-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.restriction-card {
+    background: #2f3136;
+    border: 1px solid #40444b;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 10px;
+}
+
+.restriction-card-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 12px;
+}
+
+.restriction-card-header img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.restriction-card-info {
+    flex: 1;
+}
+
+.restriction-card-info h5 {
+    margin: 0 0 4px 0;
+    color: #ffffff;
+    font-size: 15px;
+}
+
+.restriction-card-info p {
+    margin: 0;
+    color: #99aab5;
+    font-size: 12px;
+}
+
+.restriction-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.restriction-tag {
+    padding: 4px 10px;
+    background: #5865f2;
+    color: #ffffff;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.restriction-tag.block {
+    background: #ed4245;
+}
+
+.restriction-tag.confirm {
+    background: #faa61a;
+}
+
+.restriction-tag.delay {
+    background: #5865f2;
+}
+
+.restriction-tag.log {
+    background: #3ba55c;
+}
+
+.restriction-card-actions {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #40444b;
+    display: flex;
+    gap: 10px;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+</style>
+
+<script>
+const GUILD_ID = '<%= guildId %>';
+let currentUserId = null;
+
+// Поиск пользователя
+document.getElementById('searchUserBtn').addEventListener('click', async () => {
+    const query = document.getElementById('userSearch').value.trim();
+    if (!query) return;
+
+    const resultsDiv = document.getElementById('searchResults');
+    resultsDiv.innerHTML = '<p class="text-muted">Поиск...</p>';
+
+    try {
+        const response = await fetch(`/api/security/search-user?q=${encodeURIComponent(query)}`);
+        const users = await response.json();
+
+        if (users.length === 0) {
+            resultsDiv.innerHTML = '<p class="text-muted">Пользователи не найдены</p>';
+            return;
+        }
+
+        resultsDiv.innerHTML = users.map(user => `
+            <div class="search-result-item" data-user-id="${user.id}" data-username="${user.username}" data-display-name="${user.displayName}">
+                <img src="${user.avatar}" alt="${user.username}">
+                <div class="search-result-info">
+                    <h4>${user.username}</h4>
+                    <p>${user.displayName} • ID: ${user.id}</p>
+                </div>
+            </div>
+        `).join('');
+
+        // Обработка клика на результат
+        document.querySelectorAll('.search-result-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const userId = item.dataset.userId;
+                const username = item.dataset.username;
+                const displayName = item.dataset.displayName;
+                const avatar = item.querySelector('img').src;
+                showUserProfile(userId, username, displayName, avatar);
+            });
+        });
+    } catch (error) {
+        resultsDiv.innerHTML = '<p class="text-muted">Ошибка поиска</p>';
+    }
+});
+
+// Показать профиль пользователя
+async function showUserProfile(userId, username, displayName, avatar) {
+    currentUserId = userId;
+    
+    document.getElementById('profileAvatar').src = avatar;
+    document.getElementById('profileUsername').textContent = username;
+    document.getElementById('profileDisplayName').textContent = displayName;
+    document.getElementById('profileUserId').textContent = `ID: ${userId}`;
+    
+    document.getElementById('userProfile').style.display = 'block';
+    document.getElementById('searchResults').innerHTML = '';
+    document.getElementById('userSearch').value = '';
+
+    // Загрузить существующие ограничения
+    try {
+        const response = await fetch(`/api/security/restrictions/${userId}`);
+        const restrictions = await response.json();
+
+        // Сбросить все чекбоксы
+        document.querySelectorAll('.restriction-checkbox').forEach(cb => cb.checked = false);
+        document.querySelectorAll('.notification-checkbox').forEach(cb => cb.checked = false);
+        document.querySelectorAll('.restriction-method').forEach(select => select.value = 'block');
+
+        // Установить значения из БД
+        restrictions.forEach(r => {
+            const checkbox = document.querySelector(`.restriction-checkbox[data-type="${r.restriction_type}"]`);
+            const method = document.querySelector(`.restriction-method[data-type="${r.restriction_type}"]`);
+            const notification = document.querySelector(`.notification-checkbox[data-type="${r.restriction_type}"]`);
+
+            if (checkbox) checkbox.checked = true;
+            if (method) method.value = r.restriction_method;
+            if (notification) notification.checked = r.notification_enabled;
+        });
+    } catch (error) {
+        console.error('Ошибка загрузки ограничений:', error);
+    }
+}
+
+// Сохранить ограничения
+document.getElementById('saveRestrictions').addEventListener('click', async () => {
+    if (!currentUserId) return;
+
+    const restrictions = [];
+    document.querySelectorAll('.restriction-checkbox:checked').forEach(checkbox => {
+        const type = checkbox.dataset.type;
+        const method = document.querySelector(`.restriction-method[data-type="${type}"]`).value;
+        const notification = document.querySelector(`.notification-checkbox[data-type="${type}"]`).checked;
+
+        restrictions.push({
+            userId: currentUserId,
+            userName: document.getElementById('profileUsername').textContent,
+            restrictionType: type,
+            restrictionMethod: method,
+            notificationEnabled: notification
+        });
+    });
+
+    try {
+        // Сначала удалить все ограничения пользователя
+        await fetch(`/api/security/restrictions/${currentUserId}`, { method: 'DELETE' });
+
+        // Добавить новые ограничения
+        for (const restriction of restrictions) {
+            await fetch('/api/security/restrictions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(restriction)
+            });
+        }
+
+        alert('Ограничения сохранены!');
+        loadRestrictionsList();
+    } catch (error) {
+        alert('Ошибка сохранения ограничений');
+    }
+});
+
+// Удалить все ограничения
+document.getElementById('removeAllRestrictions').addEventListener('click', async () => {
+    if (!currentUserId) return;
+    if (!confirm('Удалить все ограничения для этого пользователя?')) return;
+
+    try {
+        await fetch(`/api/security/restrictions/${currentUserId}`, { method: 'DELETE' });
+        alert('Все ограничения удалены!');
+        
+        // Сбросить UI
+        document.querySelectorAll('.restriction-checkbox').forEach(cb => cb.checked = false);
+        document.querySelectorAll('.notification-checkbox').forEach(cb => cb.checked = false);
+        document.querySelectorAll('.restriction-method').forEach(select => select.value = 'block');
+        
+        loadRestrictionsList();
+    } catch (error) {
+        alert('Ошибка удаления ограничений');
+    }
+});
+
+// Закрыть профиль
+document.getElementById('closeProfile').addEventListener('click', () => {
+    document.getElementById('userProfile').style.display = 'none';
+    currentUserId = null;
+});
+
+// Загрузить список ограничений
+async function loadRestrictionsList() {
+    const listDiv = document.getElementById('restrictionsList');
+    listDiv.innerHTML = '<p class="text-muted">Загрузка...</p>';
+
+    try {
+        const response = await fetch('/api/security/restrictions');
+        const restrictions = await response.json();
+
+        if (restrictions.length === 0) {
+            listDiv.innerHTML = '<p class="text-muted">Нет активных ограничений</p>';
+            return;
+        }
+
+        // Группировка по пользователям
+        const grouped = {};
+        restrictions.forEach(r => {
+            if (!grouped[r.user_id]) {
+                grouped[r.user_id] = {
+                    user_id: r.user_id,
+                    username: r.username,
+                    avatar: r.avatar,
+                    restrictions: []
+                };
+            }
+            grouped[r.user_id].restrictions.push(r);
+        });
+
+        listDiv.innerHTML = Object.values(grouped).map(group => `
+            <div class="restriction-card">
+                <div class="restriction-card-header">
+                    <img src="${group.avatar}" alt="${group.username}">
+                    <div class="restriction-card-info">
+                        <h5>${group.username}</h5>
+                        <p>ID: ${group.user_id}</p>
+                    </div>
+                </div>
+                <div class="restriction-tags">
+                    ${group.restrictions.map(r => `
+                        <span class="restriction-tag ${r.restriction_method}">${getRestrictionLabel(r.restriction_type)} (${getMethodLabel(r.restriction_method)})</span>
+                    `).join('')}
+                </div>
+                <div class="restriction-card-actions">
+                    <button class="btn btn-sm btn-primary" onclick="editUser('${group.user_id}', '${group.username}', '${group.avatar}')">✏️ Изменить</button>
+                    <button class="btn btn-sm btn-danger" onclick="removeAllUserRestrictions('${group.user_id}')">🗑️ Удалить все</button>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        listDiv.innerHTML = '<p class="text-muted">Ошибка загрузки ограничений</p>';
+    }
+}
+
+function getRestrictionLabel(type) {
+    const labels = {
+        role_edit: 'Редактирование ролей',
+        role_create: 'Создание ролей',
+        role_delete: 'Удаление ролей',
+        unban: 'Разбанивание',
+        unmute: 'Размучивание',
+        channel_create: 'Создание каналов',
+        admin_change: 'Изменение прав админа',
+        mass_action: 'Массовые действия',
+        server_settings: 'Настройки сервера',
+        server_rename: 'Переименование сервера',
+        webhook_manage: 'Вебхуки',
+        auto_ban: 'Автоматический бан',
+        auto_kick: 'Автоматический кик',
+        auto_demote: 'Автоматическое понижение'
+    };
+    return labels[type] || type;
+}
+
+function getMethodLabel(method) {
+    const labels = {
+        block: 'Блок',
+        confirm: 'Подтверждение',
+        delay: 'Задержка',
+        log: 'Лог'
+    };
+    return labels[method] || method;
+}
+
+function editUser(userId, username, avatar) {
+    showUserProfile(userId, username, username, avatar);
+}
+
+async function removeAllUserRestrictions(userId) {
+    if (!confirm('Удалить все ограничения для этого пользователя?')) return;
+
+    try {
+        await fetch(`/api/security/restrictions/${userId}`, { method: 'DELETE' });
+        loadRestrictionsList();
+    } catch (error) {
+        alert('Ошибка удаления ограничений');
+    }
+}
+
+// Загрузить при инициализации
+loadRestrictionsList();
+</script>

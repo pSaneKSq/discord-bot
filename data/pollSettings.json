@@ -1,0 +1,139 @@
+{
+  "1553072132978905178": {
+    "settings": {
+      "suggestionChannelId": "1554420477269639248",
+      "reviewChannelId": "1553072236490002554",
+      "publishChannelId": "",
+      "approverRoleId": "",
+      "cooldownHours": 24,
+      "defaultDuration": 24,
+      "defaultMultiselect": false,
+      "formTitle": "📊 Предложи опрос для сервера",
+      "formDescription": "Хочешь узнать мнение участников? Нажми кнопку, напиши вопрос и варианты ответа (каждый с новой строки). Администрация рассмотрит предложение, а подходящие опросы будут опубликованы.",
+      "formButtonText": "Предложить опрос",
+      "formColor": "#8b5cf6",
+      "dmOnSubmit": true,
+      "dmOnApprove": true,
+      "dmOnReject": true,
+      "dmSubmitText": "Твой опрос «{question}» принят на рассмотрение. Администрация скоро его посмотрит. ✅",
+      "dmApproveText": "Твой опрос «{question}» одобрен и будет опубликован в ближайшее время! 🎉",
+      "dmRejectText": "К сожалению, твой опрос «{question}» был отклонён.{reason}"
+    },
+    "suggestions": [
+      {
+        "id": "pmumgn655mii",
+        "authorId": "994570512359506001",
+        "authorName": "SaneKS",
+        "question": "Что нужно сделать с Декси",
+        "options": [
+          "Забанить",
+          "Выгнать",
+          "отрицательно повысить"
+        ],
+        "status": "approved",
+        "rejectionReason": "",
+        "duplicateOf": null,
+        "createdAt": "2026-09-29T09:14:50.969Z",
+        "decidedAt": "2026-09-29T09:16:18.065Z",
+        "decidedBy": "994570512359506001",
+        "decidedByName": "__saneks__",
+        "reviewMessageId": "1554421186174128160",
+        "reviewChannelId": "1554420655057805363",
+        "publishedMessageId": "1554421549799575564",
+        "publishedChannelId": "1554421506610696282"
+      },
+      {
+        "id": "pmun66sxamu7",
+        "authorId": "1411069494599614495",
+        "authorName": "Циклон",
+        "question": "11344",
+        "options": [
+          "1235",
+          "14535",
+          "4546"
+        ],
+        "status": "pending",
+        "rejectionReason": "",
+        "duplicateOf": null,
+        "createdAt": "2026-09-29T21:09:57.358Z",
+        "decidedAt": null,
+        "decidedBy": null,
+        "decidedByName": "",
+        "reviewMessageId": null,
+        "reviewChannelId": null,
+        "publishedMessageId": null,
+        "publishedChannelId": null
+      },
+      {
+        "id": "pmuohcckkl56",
+        "authorId": "994570512359506001",
+        "authorName": "SaneKS",
+        "question": "13654647",
+        "options": [
+          "47568358",
+          "464646",
+          "46575757"
+        ],
+        "status": "pending",
+        "rejectionReason": "",
+        "duplicateOf": null,
+        "createdAt": "2026-09-30T19:09:58.052Z",
+        "decidedAt": null,
+        "decidedBy": null,
+        "decidedByName": "",
+        "reviewMessageId": null,
+        "reviewChannelId": null,
+        "publishedMessageId": null,
+        "publishedChannelId": null
+      },
+      {
+        "id": "pmuohhh45oto",
+        "authorId": "994570512359506001",
+        "authorName": "SaneKS",
+        "question": "234657880",
+        "options": [
+          "13245678",
+          "354678",
+          "3456789"
+        ],
+        "status": "rejected",
+        "rejectionReason": "лох",
+        "duplicateOf": null,
+        "createdAt": "2026-09-30T19:13:57.221Z",
+        "decidedAt": "2026-09-30T19:14:11.159Z",
+        "decidedBy": "994570512359506001",
+        "decidedByName": "__saneks__",
+        "reviewMessageId": "1554934345200836659",
+        "reviewChannelId": "1553072236490002554",
+        "publishedMessageId": null,
+        "publishedChannelId": null
+      }
+    ],
+    "cooldowns": {
+      "994570512359506001": 1790882037225,
+      "1411069494599614495": 1790802597364
+    },
+    "templates": [],
+    "scheduled": [],
+    "history": [
+      {
+        "question": "Что нужно сделать с Декси",
+        "options": [
+          "Забанить",
+          "Выгнать",
+          "отрицательно повысить"
+        ],
+        "duration": 24,
+        "multiselect": false,
+        "channelId": "1554421506610696282",
+        "messageId": "1554421549799575564",
+        "authorId": "994570512359506001",
+        "sentAt": "2026-09-29T09:16:18.062Z"
+      }
+    ],
+    "formMessage": {
+      "channelId": "1554420477269639248",
+      "messageId": "1554420765913514065"
+    }
+  }
+}

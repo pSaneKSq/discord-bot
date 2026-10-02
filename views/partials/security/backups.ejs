@@ -1,0 +1,331 @@
+<div class="security-tab">
+    <div class="tab-header">
+        <h2>🛡️ Резервные копии</h2>
+        <p class="text-muted">Управление резервными копиями настроек сервера</p>
+    </div>
+
+    <div class="backup-actions">
+        <div class="backup-create">
+            <h4>Создать резервную копию</h4>
+            <div class="backup-form">
+                <select id="backupType" class="form-control">
+                    <option value="roles">🎭 Роли</option>
+                    <option value="channels">📺 Каналы</option>
+                    <option value="settings">⚙️ Настройки сервера</option>
+                    <option value="full">📦 Полный бэкап</option>
+                </select>
+                <button id="createBackupBtn" class="btn btn-success">💾 Создать копию</button>
+            </div>
+        </div>
+
+        <div class="backup-cleanup">
+            <h4>Управление</h4>
+            <button id="cleanupBackupsBtn" class="btn btn-danger">🗑️ Удалить старые (30 дней)</button>
+        </div>
+    </div>
+
+    <div class="backups-list">
+        <h4>Существующие резервные копии</h4>
+        <div id="backupsContent" class="backups-content">
+            <p class="text-muted">Загрузка...</p>
+        </div>
+    </div>
+</div>
+
+<style>
+.security-tab {
+    padding: 20px;
+}
+
+.tab-header {
+    margin-bottom: 30px;
+}
+
+.tab-header h2 {
+    margin: 0 0 10px 0;
+    color: #ffffff;
+}
+
+.text-muted {
+    color: #99aab5;
+}
+
+.backup-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.backup-create,
+.backup-cleanup {
+    background: #2f3136;
+    border: 1px solid #40444b;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.backup-create h4,
+.backup-cleanup h4 {
+    margin: 0 0 15px 0;
+    color: #ffffff;
+}
+
+.backup-form {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.form-control {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #40444b;
+    border-radius: 4px;
+    background: #393c43;
+    color: #ffffff;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #5865f2;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-success {
+    background: #3ba55c;
+    color: #ffffff;
+}
+
+.btn-success:hover {
+    background: #2d7d46;
+}
+
+.btn-danger {
+    background: #ed4245;
+    color: #ffffff;
+}
+
+.btn-danger:hover {
+    background: #c93b3e;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.backups-list h4 {
+    margin: 0 0 15px 0;
+    color: #ffffff;
+}
+
+.backups-content {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.backup-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: #2f3136;
+    border: 1px solid #40444b;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+.backup-icon {
+    font-size: 32px;
+    min-width: 50px;
+    text-align: center;
+}
+
+.backup-info {
+    flex: 1;
+}
+
+.backup-info h5 {
+    margin: 0 0 6px 0;
+    color: #ffffff;
+    font-size: 15px;
+}
+
+.backup-info p {
+    margin: 3px 0;
+    color: #99aab5;
+    font-size: 12px;
+}
+
+.backup-type {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    background: #5865f2;
+    color: #ffffff;
+    margin-top: 6px;
+}
+
+.backup-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.empty-backups {
+    text-align: center;
+    padding: 40px;
+    color: #99aab5;
+}
+</style>
+
+<script>
+const GUILD_ID = '<%= guildId %>';
+
+// Создать резервную копию
+document.getElementById('createBackupBtn').addEventListener('click', async () => {
+    const backupType = document.getElementById('backupType').value;
+    
+    try {
+        // Собрать данные для бэкапа в зависимости от типа
+        let backupData = {};
+        
+        if (backupType === 'roles' || backupType === 'full') {
+            const rolesResponse = await fetch(`/api/guilds/${GUILD_ID}/roles`);
+            const roles = await rolesResponse.json();
+            backupData.roles = roles;
+        }
+        
+        if (backupType === 'channels' || backupType === 'full') {
+            const channelsResponse = await fetch(`/api/guilds/${GUILD_ID}/channels`);
+            const channels = await channelsResponse.json();
+            backupData.channels = channels;
+        }
+        
+        if (backupType === 'settings' || backupType === 'full') {
+            const settingsResponse = await fetch('/api/security/settings');
+            const settings = await settingsResponse.json();
+            backupData.settings = settings;
+        }
+
+        const response = await fetch('/api/security/backups', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ backupType, backupData })
+        });
+
+        if (response.ok) {
+            alert('Резервная копия создана!');
+            loadBackups();
+        } else {
+            alert('Ошибка создания резервной копии');
+        }
+    } catch (error) {
+        alert('Ошибка создания резервной копии');
+    }
+});
+
+// Удалить старые бэкапы
+document.getElementById('cleanupBackupsBtn').addEventListener('click', async () => {
+    if (!confirm('Удалить резервные копии старше 30 дней?')) return;
+
+    try {
+        // Для реализации нужно добавить API endpoint для очистки
+        alert('Функция очистки будет добавлена в следующем обновлении');
+    } catch (error) {
+        alert('Ошибка очистки бэкапов');
+    }
+});
+
+// Загрузить список бэкапов
+async function loadBackups() {
+    const contentDiv = document.getElementById('backupsContent');
+    contentDiv.innerHTML = '<p class="text-muted">Загрузка...</p>';
+
+    try {
+        const response = await fetch('/api/security/backups');
+        const backups = await response.json();
+
+        if (backups.length === 0) {
+            contentDiv.innerHTML = '<div class="empty-backups">Нет резервных копий</div>';
+            return;
+        }
+
+        contentDiv.innerHTML = backups.map(backup => `
+            <div class="backup-item">
+                <div class="backup-icon">${getBackupIcon(backup.backup_type)}</div>
+                <div class="backup-info">
+                    <h5>${getBackupLabel(backup.backup_type)}</h5>
+                    <p>Создан: ${formatTimestamp(backup.created_at)}</p>
+                    ${backup.created_by ? `<p>Создал: ${backup.created_by}</p>` : ''}
+                    <span class="backup-type">${backup.backup_type}</span>
+                </div>
+                <div class="backup-actions">
+                    <button class="btn btn-sm btn-success" onclick="restoreBackup(${backup.id})">📥 Восстановить</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteBackup(${backup.id})">🗑️ Удалить</button>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        contentDiv.innerHTML = '<p class="text-muted">Ошибка загрузки бэкапов</p>';
+    }
+}
+
+function getBackupIcon(type) {
+    const icons = {
+        roles: '🎭',
+        channels: '📺',
+        settings: '⚙️',
+        full: '📦'
+    };
+    return icons[type] || '📁';
+}
+
+function getBackupLabel(type) {
+    const labels = {
+        roles: 'Резервная копия ролей',
+        channels: 'Резервная копия каналов',
+        settings: 'Резервная копия настроек',
+        full: 'Полный бэкап'
+    };
+    return labels[type] || 'Резервная копия';
+}
+
+function formatTimestamp(timestamp) {
+    const date = new Date(timestamp);
+    return date.toLocaleString('ru-RU', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+// Восстановить бэкап (заглушка)
+function restoreBackup(backupId) {
+    alert('Функция восстановления будет добавлена в следующем обновлении');
+}
+
+// Удалить бэкап (заглушка)
+function deleteBackup(backupId) {
+    if (!confirm('Удалить эту резервную копию?')) return;
+    alert('Функция удаления будет добавлена в следующем обновлении');
+}
+
+// Загрузить при инициализации
+loadBackups();
+</script>
